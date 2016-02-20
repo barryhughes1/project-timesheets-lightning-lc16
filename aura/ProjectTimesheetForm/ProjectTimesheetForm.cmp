@@ -1,0 +1,205 @@
+<aura:component implements="force:appHostable,flexipage:availableForAllPageTypes"
+                controller="ProjectTimesheetFormController">
+        
+    <aura:attribute name="id" type="String" default="" />
+    <aura:attribute name="editMode" type="String" default="Read" />
+    <aura:attribute name="processMode" type="String" default="" />
+    <aura:attribute name="project_timesheet" type="Project_Timesheet__c" />
+    <aura:handler name="init" value="{! this }" action="{! c.doInit }" />
+
+    <aura:registerEvent name="MyTimesheetsCmpRouter" type="c:MyTimesheetsCmpRouter"/>
+    
+    <div class="slds">
+        <form class="slds-form--stacked" style="margin: 5px">
+
+            <!-- Consultant Name -->
+            <div class="slds-form-element">
+                <label class="slds-form-element__label" for="selectSample1">Consultant</label>
+                <div class="slds-form-element__control">
+                    <aura:if isTrue="{! v.editMode == 'Edit' }">
+                        <div class="slds-select_container">
+                            <ui:inputSelect aura:id="ConsultantName"
+                                            class="slds-select" 
+                                            required="true"
+                                            value="{!v.project_timesheet.Consultant__c}"/>
+                        </div>
+                        <aura:set attribute="else">
+                            {!v.project_timesheet.Consultant_Name__c}
+                        </aura:set>
+                    </aura:if>
+                </div>
+            </div>
+            
+            <!-- Date of Work -->
+            <div class="slds-form-element">
+                <aura:if isTrue="{! v.editMode == 'Edit' }">
+                    <ui:inputDate label="Date of Work"
+                                  labelClass="slds-form-element__label"
+                                  aura:id="DateOfWork" 
+                                  class="slds-form-element__control slds-input"
+                                  displayDatePicker="true" 
+                                  value="{!v.project_timesheet.Date_of_Work__c}"/>
+                    <aura:set attribute="else">
+                        <label class="slds-form-element__label" for="selectSample1">Date of Work:</label><br/>
+                        {!v.project_timesheet.Date_of_Work__c}
+                    </aura:set>
+                </aura:if>
+                
+            </div>
+            
+            <!-- Project Name -->
+            <div class="slds-form-element">
+                <label class="slds-form-element__label" for="selectSample1">Project</label>
+                <div class="slds-form-element__control">
+                    <aura:if isTrue="{! v.editMode == 'Edit' }">
+                        <div class="slds-select_container">
+                            <ui:inputSelect aura:id="ProjectName"
+                                            class="slds-select" 
+                                            required="true"
+                                            value="{!v.project_timesheet.P_Opportunity_Name__c}"/>
+                        </div>
+                        <aura:set attribute="else">
+                            {!v.project_timesheet.Project_Name_Text__c}
+                        </aura:set>
+                    </aura:if>
+                </div>
+            </div>
+            
+            
+            <aura:if isTrue="{! v.editMode == 'Edit' }">
+                <aura:set attribute="else">
+                    <label class="slds-form-element__label" for="selectSample1">Customer</label><br/>
+                    {!v.project_timesheet.Customer_Name__c}
+                </aura:set>
+            </aura:if>
+            
+            <!-- Project Stages -->
+            <div class="slds-form-element">
+                <label class="slds-form-element__label" for="selectSample1">Project Stage</label>
+                <div class="slds-form-element__control">
+                    <aura:if isTrue="{! v.editMode == 'Edit' }">
+                        <div class="slds-select_container">
+                            <ui:inputSelect aura:id="ProjectStages"
+                                            class="slds-select" 
+                                            required="true"
+                                            value="{!v.project_timesheet.Project_Stage__c}" />
+                            <aura:set attribute="else">
+                                {!v.project_timesheet.Project_Stage__c}
+                            </aura:set>
+                        </div>
+                    </aura:if>
+                </div>
+            </div>
+            
+            <!-- Description Options -->
+            <div class="slds-form-element">
+                <label class="slds-form-element__label" for="selectSample1">Description</label>
+                <div class="slds-form-element__control">
+                    <aura:if isTrue="{! v.editMode == 'Edit' }">
+                        <div class="slds-select_container">
+                            <ui:inputSelect aura:id="DescriptionOptions"
+                                            class="slds-select" 
+                                            required="true"
+                                            value="{!v.project_timesheet.Description__c}" />
+                            <aura:set attribute="else">
+                                {!v.project_timesheet.Description__c}
+                            </aura:set>
+                        </div>
+                    </aura:if>
+                </div>
+            </div>
+            
+            
+            
+            <div class="slds-form-element">
+                <aura:if isTrue="{! v.editMode == 'Edit' }">
+                    <ui:inputNumber aura:id="DurationQ"
+                                    label="Duration"
+                                    class="slds-input" 
+                                    labelClass="slds-form-element__label"
+                                    value="{!v.project_timesheet.Duration__c}"/>
+                    <aura:set attribute="else">
+                        {!v.project_timesheet.Duration__c}
+                    </aura:set>
+                </aura:if>
+            </div>
+            
+            <div class="slds-form-element">
+                <aura:if isTrue="{! v.editMode == 'Edit' }">
+                    <ui:inputCheckbox label="Billable?"
+                                      aura:id="billableQ"
+                                      value="{!v.project_timesheet.Billable__c}" />
+                    <aura:set attribute="else">
+                        {!v.project_timesheet.Billable__c}
+                    </aura:set>
+                </aura:if>
+            </div>
+            
+            <div class="slds-form-element">
+                <div class="slds-form-element__control">
+                    <aura:if isTrue="{! v.editMode == 'Edit' }">
+                        <ui:inputTextArea aura:id="notes" 
+                                          class="slds-input slds-textarea"
+                                          label="Notes"
+                                          labelClass="slds-form-element__label"
+                                          value="{!v.project_timesheet.Notes__c}" />
+                        <aura:set attribute="else">
+                            <label class="slds-form-element__label" for="selectSample1">Customer</label><br/>
+                            {!v.project_timesheet.Notes__c}
+                        </aura:set>
+                    </aura:if>
+                </div>
+            </div>
+            
+            
+        </form>
+        
+        <div class="slds-form-element" style="text-align: center"> 
+            <aura:if isTrue="{! v.editMode == 'Edit' }">
+                <button 
+                        type="button"
+                        class="slds-button slds-button--neutral" 
+                        onclick="{!c.TimesheetSubmit}">
+                    Save
+                </button>
+                &nbsp;
+                <button 
+                        type="button"
+                        class="slds-button slds-button--neutral" 
+                        onclick="{!c.cancelButton}">
+                    Cancel
+                </button> 
+                <aura:set attribute="else">
+                    <button 
+                            type="button"
+                            class="slds-button slds-button--neutral" 
+                            onclick="{!c.editTimesheet}">
+                        Edit
+                    </button>
+                    &nbsp;
+                    <button 
+                            type="button"
+                            class="slds-button slds-button--neutral" 
+                            onclick="{!c.cloneTimesheet}">
+                        Clone
+                    </button>
+                    &nbsp;
+                    <button 
+                            type="button"
+                            class="slds-button slds-button--neutral" 
+                            onclick="{!c.deleteTimesheet}">
+                        Delete
+                    </button>
+                    &nbsp;
+                    <button 
+                            type="button"
+                            class="slds-button slds-button--neutral" 
+                            onclick="{!c.cancelButton}">
+                        Back
+                    </button> 
+                </aura:set>
+            </aura:if>
+        </div>
+    </div>
+    
+</aura:component>

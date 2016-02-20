@@ -1,0 +1,1760 @@
+<apex:page docType="html-5.0" showHeader="false" sidebar="false" standardStylesheets="false">
+    <!-- Remote Objects declaration -->
+    <apex:remoteObjects jsNamespace="RemoteObjectModel">
+        <apex:remoteObjectModel name="Consultant__c" fields="Id,Name,User_Name__c" />
+        <apex:remoteObjectModel name="Project_Timesheet__c" fields="Id,Name,Date_of_Work__c,Project_Name__c,Project_Name_Text__c,P_Opportunity_Name__c,Billable__c,Consultant_Name__c,Customer__c,Customer_Name__c,Duration__c,Project_Stage__c,Notes__c,Description__c" />
+        <apex:remoteObjectModel name="Project__c" fields="Id,Name,CreatedDate,Opportunity_Name__c,Customer_Name__c,Account_ID__c,Opportunity_Stage__c,Client_Name__c,Time_Carried_Over_Hrs__c,Estimated_Effort_Hrs__c" />
+    </apex:remoteObjects>
+<head>
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="" />
+    <meta name="author" content="" />
+
+    <title>Project Timesheets</title>
+
+    <!-- Static Resources for CSS -->
+    <apex:stylesheet value="{!URLFOR($Resource.angularbase, 'css/bootstrap.min.css')}"/>
+    <apex:stylesheet value="{!URLFOR($Resource.angularbase, 'css/notables.css')}"/>
+    <apex:stylesheet value="{!$Resource.bluewave_navbar}"/>
+    <apex:stylesheet value="{!$Resource.simpleSidebar}"/>
+
+    <!-- c3.js Charting CSS via CDN -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/c3/0.4.10/c3.min.css" rel="stylesheet"/>
+
+    <!-- styles -->    
+    <style type="text/css">
+        .panel-heading {
+            overflow: hidden;
+            padding-top: 20px;
+        }
+        .btn-group {
+            position: relative;
+            top: -5px;
+        }
+        .panel-default > .panel-heading-custom {
+            background: #39729b; 
+            color: #fff; 
+        }
+    </style>
+
+</head>
+
+<body ng-app="app">
+
+    <!--
+        Top Nav Bar with Brand Logo (Bootstrap)
+    -->
+    <nav class="navbar navbar-default navbar-fixed-top" style="padding-top:10px">
+        <div class="navbar-header">
+          <button  type="button" class="navbar-toggle collapsed pull-left" data-toggle="collapse" data-target="#myNavbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <ul class="nav navbar-nav pull-left">
+            <li><a href="javascript: return false;" class="menuToggle"><span class="glyphicon glyphicon-resize-horizontal"></span></a></li>
+          </ul>
+          
+          <a class="navbar-brand" href="#">
+          <span>
+          <apex:image value="{!$Resource.bluewave_b}" style="max-width:30px; margin-top: -7px;" />
+          </span> Blue Wave Group</a>
+        </div>
+        <div id="myNavbar" class="collapse navbar-collapse">
+        <ul class="nav navbar-nav navbar-left">
+            <li class="navbar-text hidden-xs hidden-sm">Project Timesheets DF15</li>
+        </ul>
+        <ul class="nav navbar-nav navbar-right">
+<!--
+<li class="active hidden-xs hidden-sm"><a href="#/">Home</a></li>
+-->
+            <li class="active"><a href="#/"><span class="glyphicon glyphicon-tasks"></span><span class="visible-xs visible-sm"> My Timesheets</span></a></li>
+            <li><a href="#/projects/"><span class="glyphicon glyphicon-stats"></span><span class="visible-xs visible-sm"> Active Projects</span></a></li>
+            <li><a href="#/about/"><span class="glyphicon glyphicon-info-sign"></span><span class="visible-xs visible-sm"> About</span></a></li>
+            <li><a href="#/contact"><span class="glyphicon glyphicon-phone"></span><span class="visible-xs visible-sm"> Contact</span></a></li>
+            <li style="margin-right:10px"><a href="#/help/"><span class="glyphicon glyphicon-question-sign"></span><span class="visible-xs visible-sm"> Help</span></a></li>
+          </ul>
+        </div><!--/.nav-collapse -->
+    </nav>  
+    
+    <div id="wrapper">
+    
+        <!--
+        Side Nav Bar (Bootstrap)
+        -->
+        <!-- Sidebar -->
+        <div id="sidebar-wrapper">
+            <ul class="sidebar-nav">
+                <li class="sidebar-brand">
+                    <a href="#" style="color:#39729b">
+                        Project Timesheets
+                    </a>
+                </li>
+                <li>
+                    <a href="#/"><span class="glyphicon glyphicon-tasks"></span> My Timesheets</a>
+                </li>
+                <li>
+                    <a href="#/projects/"><span class="glyphicon glyphicon-stats"></span> Active Projects</a>
+                </li>
+                <li>
+                    <a href="#/about/"><span class="glyphicon glyphicon-info-sign"></span> About</a>
+                </li>
+                <li>
+                    <a href="#/contact/"><span class="glyphicon glyphicon-phone"></span> Contact</a>
+                </li>
+                <li>
+                    <a href="#/help/"><span class="glyphicon glyphicon-question-sign"></span> Help</a>
+                </li>
+                <li>
+                    <a href="#">Logged in as {!$User.FirstName} {!$User.LastName}</a>
+                </li>
+            </ul>
+        </div>
+        <!-- /#sidebar-wrapper -->
+
+        <!-- Page Content -->
+&nbsp;
+        <div id="page-content-wrapper">
+
+            <div id="main">
+
+                <errorblock></errorblock>
+                <ng-view></ng-view>
+
+            </div>
+            <!-- /#page-content-wrapper -->
+
+        </div>
+        <!-- /#wrapper -->
+
+
+
+    <!--
+        List of Project Timesheets - Initial Page
+    -->
+    <script id="root.html" type="text/ng-template">
+
+      <div class="panel panel-default no-more-tables">
+        <div class="panel-heading panel-heading-custom">
+          My Timesheets
+
+          <div class="btn-toolbar pull-right" role="toolbar">
+           <div class="btn-group" role="group" aria-label="Actions">
+            <button class="btn btn-success" ng-click="new()"><span class="glyphicon glyphicon-plus"></span><span class="hidden-xs">New Timesheet</span></button>
+            <button class="btn btn-primary" ng-click="load(true)"><span class="glyphicon glyphicon-refresh"></span><span class="hidden-xs">Reload</span></button>  
+           </div>
+           <div class="btn-group" role="group" aria-label="Pagination">
+            <button class="btn btn-info" id="btnNext" ng-click="paginate('next')"><span class="glyphicon glyphicon-chevron-left"></span><span class="hidden-xs">Prev 100</span></button>
+            <button class="btn btn-info" id="btnBack" ng-click="paginate('back')"><span class="glyphicon glyphicon-chevron-right"></span><span class="hidden-xs">Next 100</span></button>
+           </div>
+          </div>
+        </div>
+        <div class="panel-body">
+         <div class="input-group">
+          <input type="text" class="form-control" ng-model="sFilter" placeholder="Filter...">
+          <span class="input-group-btn">
+            <button class="btn btn-default" type="button" ng-click="clear()"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></button>
+          </span>
+         </div>     
+        </div>
+
+        <!--
+            Main Table for records        
+        -->
+        <table class="table table-condensed table-striped">
+        <thead>
+            <th>Date</th>
+            <th>Project</th>
+            <th>Client</th>
+            <!--
+            <th>Consultant</th>
+            -->
+            <th>Hours</th>
+            <th>Actions</th>
+        </thead>
+        <tbody ng-if="bLoaded">
+            <tr ng-repeat="oTimesheet in aList | filter: sFilter">
+                <td data-title="Date: "><a href="" ng-click="edit(oTimesheet)"> 
+                {{oTimesheet.Date_of_Work__c | date:"dd/MM/yyyy"}}
+                 </a></td>
+<!--
+                <td data-title="Consultant: ">{{oTimesheet.Consultant_Name__c}}</td>
+-->
+                <td data-title="Project: ">{{oTimesheet.Project_Name_Text__c}}</td>
+                <td data-title="Client: ">{{oTimesheet.Customer_Name__c}}</td>
+                <td data-title="Duration: ">{{oTimesheet.Duration__c}}</td>
+                <td>
+                    <button type="button" class="btn btn-success btn-sm" ng-click="edit(oTimesheet)"><span class="glyphicon glyphicon-edit"></span><span class="hidden-xs"> Edit</span></button>
+                    <button type="button" class="btn btn-warning btn-sm" ng-click="clone(oTimesheet)"><span class="glyphicon glyphicon-share"></span><span class="hidden-xs">  Clone</span></button>
+                    <button type="button" class="btn btn-danger btn-sm" ng-click="delete(oTimesheet)"><span class="glyphicon glyphicon-remove"></span><span class="hidden-xs">  Delete</span></button>
+                </td>
+            </tr>
+        </tbody>
+        <tbody ng-if="!bLoaded">
+            <tr>
+                <td colspan="4">Loading...</td>
+            </tr>
+        </tbody>
+        </table>
+      </div>
+    </script>
+
+
+    <!--
+Individual Project Timesheet - New/Edit/Clone
+    -->        
+    <script id="timesheet.html" type="text/ng-template">
+      <div class="panel panel-default">
+        <div class="panel-heading panel-heading-custom">
+         {{sPrompt}}
+         <div class="btn-toolbar pull-right" role="toolbar">
+            <button class="btn btn-success" ng-click="save()"><span class="glyphicon glyphicon-save"></span> Save</button>
+            <button class="btn btn-warning" ng-click="cancel( true )"><span class="glyphicon glyphicon-chevron-left"></span> Cancel</button>  
+         </div>
+        </div>
+        <div class="panel-body">
+         <div class="row" ng-if="!bLoaded">
+            <div class="col-md-12">Loading...</div>
+         </div>
+         <div ng-if="bLoaded">
+            <form>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="Consultant_Name__c">Consultant</label>                            
+                            <select class="form-control" ng-model="oTimesheet.Consultant_Name__c">
+                                <option ng-repeat="d in consultants | orderBy:'Name'" value="{{d.name}}" ng-selected="d.name==oTimesheet.Consultant_Name__c">
+                                {{d.name}}
+                                </option>
+                            </select>                            
+                        </div>
+                        <div class="form-group">
+                            <label for="Date_of_Work__c">Date</label>
+                            <input type="date" class="form-control" id="Date_of_Work__c" placeholder="Enter Date of Work" ng-model="oTimesheet.Date_of_Work__c" />
+                        </div>
+                        <div class="form-group" ng-show="{{projectActive==true}}">
+                            <label for="Project_Name__c">Project</label>
+                            <select id="projectOpt" class="form-control" ng-model="oTimesheet.P_Opportunity_Name__c" ng-change="changeSelectedProject()">
+                                <option ng-repeat="p in pList | orderBy:'Name'" value="{{p.Id}}" ng-selected="p.Id==oTimesheet.P_Opportunity_Name__c">
+                                {{p.Name}}
+                                </option>
+                            </select>
+                            
+                        </div>
+                        <div class="form-group" ng-show="{{projectActive==false}}">
+                            <label for="Project_Name__c">Project</label>
+                            <br/>{{oTimesheet.Project_Name_Text__c}}
+                        </div>
+                        <div class="form-group">
+                            <label for="Customer_Name__c">Customer</label>:&nbsp;&nbsp;<span id="cust_name">{{oTimesheet.Customer_Name__c}}</span>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="Project_Stage__c">Project Stage</label>                            
+                            <select class="form-control" ng-model="oTimesheet.Project_Stage__c">
+                                <option ng-repeat="d in projectStageOptions" value="{{d.name}}" ng-selected="d.name==oTimesheet.Project_Stage__c">
+                                {{d.name}}
+                                </option>
+                            </select>                            
+                        </div>
+                        <div class="form-group">
+                            <label for="Description__c">Description</label>                            
+                            <select class="form-control" ng-model="oTimesheet.Description__c">
+                                <option ng-repeat="d in descriptionOptions" value="{{d.name}}" ng-selected="d.name==oTimesheet.Description__c">
+                                {{d.name}}
+                                </option>
+                            </select>                            
+                        </div>
+
+                        <div class="form-group">
+                            <label for="Duration__c">Duration</label>
+                            <input type="number" class="form-control" id="Duration__c" placeholder="Enter Duration" ng-model="oTimesheet.Duration__c" />
+                        </div>
+                        <div class="form-group">
+                            <label for="Billable__c">Billable</label>
+                            <input type="checkbox" id="Billable__c" ng-model="oTimesheet.Billable__c" />
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <label for="Notes__c">Notes</label>
+                            <textarea id="Notes__c" class="form-control" ng-model="oTimesheet.Notes__c" rows="8" />
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <button type="submit" class="btn btn-success" ng-click="save()"><span class="glyphicon glyphicon-save"></span> Save</button>
+                        <button type="button" class="btn btn-warning" ng-click="cancel( true )"><span class="glyphicon glyphicon-chevron-left"></span> Cancel</button>
+                    </div>
+                </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </script>
+
+
+        
+        
+    <!--
+        List of Active Projects - List Page
+    -->
+    <script id="projectsList.html" type="text/ng-template">
+
+      <div class="panel panel-default no-more-tables">
+        <div class="panel-heading panel-heading-custom">
+          Active Projects
+
+          <div class="btn-toolbar pull-right" role="toolbar">
+           <div class="btn-group" role="group" aria-label="Actions">
+            <button class="btn btn-primary" ng-click="load(true)"><span class="glyphicon glyphicon-refresh"></span><span class="hidden-xs">Reload</span></button>  
+           </div>
+<!--
+           <div class="btn-group" role="group" aria-label="Pagination">
+            <button class="btn btn-info" id="btnNext" ng-click="paginate('next')"><span class="glyphicon glyphicon-chevron-left"></span><span class="hidden-xs">Prev 100</span></button>
+            <button class="btn btn-info" id="btnBack" ng-click="paginate('back')"><span class="glyphicon glyphicon-chevron-right"></span><span class="hidden-xs">Next 100</span></button>
+           </div>
+-->
+          </div>
+        </div>
+        <div class="panel-body">
+         <div class="input-group">
+          <input type="text" class="form-control" ng-model="sFilter" placeholder="Filter...">
+          <span class="input-group-btn">
+            <button class="btn btn-default" type="button" ng-click="clear()"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></button>
+            <button class="btn btn-info" id="btnNext" ng-click="paginate('next')"><span class="glyphicon glyphicon-chevron-left"></span><span class="hidden-xs">Prev 100</span></button>
+            <button class="btn btn-info" id="btnBack" ng-click="paginate('back')"><span class="glyphicon glyphicon-chevron-right"></span><span class="hidden-xs">Next 100</span></button>
+          </span>
+         </div>     
+        </div>
+
+        <!--
+            Main Table for records        
+        -->
+        <div>
+        <table class="table table-condensed table-striped">
+        <thead>
+            <th>Date</th>
+            <th>Project</th>
+            <th>Client</th>
+            <th style="text-align:right">Estimated</th>
+            <th style="text-align:right">Carried</th>
+            <th style="text-align:right">Total</th>
+        </thead>
+        <tbody ng-if="bLoaded">                
+            <tr ng-repeat="oProject in pList | filter: sFilter" ng-click="openProject(oProject)">
+                <td data-title="Date: ">
+                {{oProject.CreatedDate | date:"dd/MM/yyyy"}}
+                </td>
+                <td data-title="Project: " style="max-width:250px">{{oProject.Name}}</td>
+                <td data-title="Client: " style="max-width:200px">{{oProject.Client_Name__c}}</td>
+                <td data-title="Estimated Hours: " align="right">{{oProject.Estimated_Effort_Hrs__c}}</td>
+                <td data-title="Carried Over Hours: " align="right">{{oProject.Time_Carried_Over_Hrs__c}}</td>
+                <td data-title="Total Hours: " align="right">{{oProject.Estimated_Effort_Hrs__c + oProject.Time_Carried_Over_Hrs__c}}</td>
+            </tr>
+        </tbody>
+        <tbody ng-if="!bLoaded">
+            <tr>
+                <td colspan="5">Loading...</td>
+            </tr>
+        </tbody>
+        </table>
+        </div>
+      </div>
+    </script>
+        
+        
+
+    <!--
+        Stats for an Active Project
+    -->
+    <script id="projectStats.html" type="text/ng-template">
+
+      <div class="panel panel-default no-more-tables">
+        <div class="panel-heading panel-heading-custom">
+            {{sPrompt}}<br/>{{sClientName}}
+
+          <div class="btn-toolbar pull-right" role="toolbar">
+           <div class="btn-group" role="group" aria-label="Actions">
+            <button class="btn btn-primary" ng-click="cancel()"><span class="glyphicon glyphicon-chevron-left"></span><span class="hidden-xs">Back</span></button>  
+           </div>
+          </div>
+        </div>
+        <div class="panel-body">
+    
+            <div id="content">
+
+                <ul id="tabs" class="nav nav-pills" data-tabs="tabs">
+                    <li class="active"><a showtab href="#red" data-toggle="tab">Details</a></li>
+                    <li><a showtab href="#sheets" data-toggle="tab">Sheets</a></li>
+                    <li><a showtab href="#orange" data-toggle="tab">Hours</a></li>
+                    <li><a showtab href="#yellow" data-toggle="tab">Billable</a></li>
+
+                    <li><a showtab href="#consultant" data-toggle="tab">Consultant</a></li>
+                    <li><a showtab href="#green" data-toggle="tab">Stage</a></li>
+                    <li><a showtab href="#blue" data-toggle="tab">Desc</a></li>
+                 </ul>
+
+                 <div id="my-tab-content" class="tab-content">
+                    <div class="tab-pane active" id="red"> 
+
+                            
+                        <div class="row" style="margin-top:10px">
+                          <div class="col-md-3 col-xs-12"><span class="text-muted">Name:</span></div>
+                          <div class="col-md-9 col-xs-12">{{oProject.Name}}</div>
+                        </div>   
+                        <div class="row" style="margin-top:5px">
+                          <div class="col-md-3 col-xs-12"><span class="text-muted">Created:</span></div>
+                          <div class="col-md-9 col-xs-12">{{oProject.CreatedDate | date:"dd/MM/yyyy"}}</div>
+                        </div>   
+                        <div class="row" style="margin-top:5px">
+                          <div class="col-md-3 col-xs-12"><span class="text-muted">Client:</span></div>
+                          <div class="col-md-9 col-xs-12">{{oProject.Client_Name__c}}</div>
+                        </div>   
+                        <div class="row" style="margin-top:5px">
+                          <div class="col-md-3 col-xs-12"><span class="text-muted">Stage:</span></div>
+                          <div class="col-md-9 col-xs-12">{{oProject.Opportunity_Stage__c}}</div>
+                        </div>   
+                        <div class="row" style="margin-top:5px">
+                          <div class="col-md-3 col-xs-12"><span class="text-muted">Estimated Hours:</span></div>
+                          <div class="col-md-9 col-xs-12">{{oProject.Estimated_Effort_Hrs__c}}</div>
+                        </div>   
+                        <div class="row" style="margin-top:5px">
+                          <div class="col-md-3 col-xs-12"><span class="text-muted">Hours Carried Over:</span></div>
+                          <div class="col-md-9 col-xs-12">{{oProject.Time_Carried_Over_Hrs__c}}</div>
+                        </div>   
+                        <div class="row" style="margin-top:5px">
+                          <div class="col-md-3 col-xs-12"><span class="text-muted">Total Hours:</span></div>
+                          <div class="col-md-9 col-xs-12">{{oProject.Estimated_Effort_Hrs__c + oProject.Time_Carried_Over_Hrs__c}}</div>
+                        </div>   
+                        
+                        
+                    </div>
+                    <div class="tab-pane" id="sheets">
+                        <!--
+                            Main Table for records        
+                        -->
+                        <div class="panel panel-default">
+                          <div class="panel-body">
+                         <div class="input-group">
+                          <input type="text" class="form-control" ng-model="sFilter" placeholder="Filter...">
+                          <span class="input-group-btn">
+                            <button class="btn btn-default" type="button" ng-click="clear()"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></button>
+                            <button class="btn btn-info" id="btnNext" ng-click="paginate('next')"><span class="glyphicon glyphicon-chevron-left"></span><span class="hidden-xs">Prev 100</span></button>
+                            <button class="btn btn-info" id="btnBack" ng-click="paginate('back')"><span class="glyphicon glyphicon-chevron-right"></span><span class="hidden-xs">Next 100</span></button>
+                          </span>
+                         </div>
+                                </div>
+                        </div>
+                        <table class="table table-condensed table-striped">
+                        <thead>
+                            <th>Date</th>
+                            <th>Consultant</th>
+                            <th>Stage</th>
+                            <th>Desc</th>
+                            <th>Billable?</th>
+                            <th style="text-align:right">Hours</th>
+                        </thead>
+                        <tbody ng-if="bLoaded">                
+                            <tr ng-repeat="oTimesheet in pList | filter: sFilter" ng-click="edit(oTimesheet)">   
+                            <td data-title="Date: ">
+                            {{oTimesheet.Date_of_Work__c | date:"dd/MM/yyyy"}}
+                            </td>
+                            <td data-title="Consultant: ">{{oTimesheet.Consultant_Name__c}}</td>
+                            <td data-title="Stage: ">{{oTimesheet.Project_Stage__c}}</td>
+                            <td data-title="Description: ">{{oTimesheet.Description__c}}</td>
+                            <td data-title="Billable: "><span class="glyphicon glyphicon-ok  text-success" ng-show="{{oTimesheet.Billable__c==true}}"></span></td>
+                            <td data-title="Duration: " style="text-align:right">{{oTimesheet.Duration__c}}</td>
+                            </tr>
+                        </tbody>
+                        <tbody ng-if="!bLoaded">
+                            <tr>
+                                <td colspan="5">Loading...</td>
+                            </tr>
+                        </tbody>
+                        </table>
+                    </div> 
+                    <div class="tab-pane" id="orange">
+                        <h4>Hours Estimated vs Used</h4>
+                        <div id="hours_chart"></div>
+                    </div>
+                    <div class="tab-pane" id="yellow">
+                        <h4>Billable vs non-Billable Time</h4>
+                        <div id="billable_chart"></div>
+                    </div>
+                    <div class="tab-pane" id="consultant">
+                        <h4>Consultants</h4>
+                        <div id="consultants_chart"></div>
+                    </div>
+                    <div class="tab-pane" id="green">
+                        <h4>Stage</h4>
+                        <div id="stage_chart"></div>
+                    </div>
+                    <div class="tab-pane" id="blue">
+                        <h4>Description</h4>
+                        <div id="desc_chart"></div>
+                    </div>
+                </div>
+            </div>            
+        </div>
+
+
+      </div>
+    </script>
+        
+        
+        
+
+        
+        
+    <!--
+        Error Handling Template
+    -->
+    <script id="errors.html" type="text/ng-template">
+        <div class="alert alert-dismissible" ng-repeat="oError in stack.aErrors" ng-class="'alert-' + oError.level">
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close" ng-click="stack.remove( oError )"><span aria-hidden="true">&times;</span></button>
+                {{oError.text}}
+        </div>
+    </script>
+
+    <!--
+        About page
+    -->
+    <script id="about.html" type="text/ng-template">
+        <div class="panel panel-primary">
+          <div class="panel-heading">
+            About this App
+          </div>
+          <div class="panel-body">
+            <div class="row">
+              <div class="col-md-12">
+                            <p>The app provides users with a more user-friendly way to view and manage their Project Timesheet records. Users can Add, Edit, Delete and Clone records while also being able to filter their own timesheet records easily.</p>
+                            <p>The app also provides managers with a project level view of timesheets with clear graphical indications on the status of project timesheet duration statistics in real-time.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+    </script>
+     
+    <!--
+        Contact page
+    -->  
+    <script id="contact.html" type="text/ng-template">
+        <div class="panel panel-primary">
+            <div class="panel-heading">
+                Contact
+            </div>
+            <div class="panel-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <p>Developer: Barry Hughes</p>
+                        <p>Contact me on Twitter: <a href="http://www.twitter.com/barryhughes" target="_blank"> @barryhughes </a></p>
+                    </div>
+                </div>
+            </div>
+        </div>   
+    </script>
+        
+    <!--
+        Help Page
+    -->
+    <script id="help.html" type="text/ng-template">
+    <div class="panel panel-primary">
+    <div class="panel-heading">
+        Help
+    </div>
+    <div class="panel-body">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="panel-group" id="accordion">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <h4 class="panel-title">
+                                1. Purpose of the Project Timesheets App?
+                            </h4>
+                        </div>
+                        <div class="panel-body">
+                            <p>The app provides users with a more user-friendly way to view and manage their Project Timesheet records. Users can Add, Edit, Delete and Clone records while also being able to filter their own timesheet records easily.</p>
+                            <p>The app also provides managers with a project level view of timesheets with clear graphical indications on the status of project timesheet duration statistics in real-time.</p>
+                        </div>
+                    </div>
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <h4 class="panel-title">
+                                2. My Timesheets
+                            </h4>
+                        </div>
+                            <div class="panel-body">
+                                <p>My Timesheets is the are users can view all of their most recent 50 timesheet records. The page is paginated and the set of records displayed can be controlled with toggles on top.</p>
+                                <p>My Timesheets allows users to easily edit, clone or delete timesheet records using the actions for each row. The 'Clone' feature makes a copy of the record in memory but it is not saved until the user clicks the 'Save' button.</p>
+                                <p>New Timesheets can be added via the '+' button on the panel header.</p>
+                            </div>
+                    </div>
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <h4 class="panel-title">
+                                3. Active Projects
+                            </h4>
+                        </div>
+                        <div class="panel-body">
+                            <p>The Active Projects screen allows the user to view and search for specific projects where the Opportunity is at 'Closed/Won' stage.</p>
+                            <p>Clicking/Pressing on a Project record will open up a Project analysis screen where the user can see:
+                            <ol>
+                            <li>Project Details</li>
+                            <li>A searchable list of Project Timesheets</li>
+                            <li>Analysis of Hours spent vs Hours budgeted for</li>
+                            <li>Analysis of Billable time vs non-Billable time</li>
+                            <li>Analysis of hours spent by Consultant</li>
+                            <li>Analysis of hours spent at Project Stages</li>
+                            <li>Analysis of hours spent at each Project Task</li>
+                            </ol></p>
+                            <p>Note: This screen only shows up to 100 timesheet records per project and all analysis is based on those first 100 records.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+    </script>
+        
+    </div><!-- /.container -->
+    
+    <!-- End Templates -->
+    
+    <!-- Javascript Libraries -->    
+    <apex:includeScript value="{!URLFOR($Resource.angularbase, 'js/jquery-2.1.1.min.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.angularbase, 'js/angular.min.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.angularbase, 'js/angular-route.min.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.angularbase, 'js/bootstrap.min.js')}"/>
+
+    <!-- Charting Javascript Libraries -->
+    <script src="//cdnjs.cloudflare.com/ajax/libs/d3/3.5.5/d3.min.js" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/c3/0.4.10/c3.min.js" />
+
+    <!-- onload Javascript -->
+    <script type="application/javascript">
+        $( document ).ready(function() {
+            console.log('Project Timesheets');
+        });
+
+        // Sidebar Menu Toggle
+        $(".menuToggle").click(function(e) {
+            e.preventDefault();
+            $("#wrapper").toggleClass("toggled");
+        });
+
+    
+
+    
+    // Angular Module        
+    var app = angular.module( "app", ["ngRoute"] );
+
+    /**
+     * Factories
+     */
+    app.factory( 'ErrorStack', function() {
+        return { aErrors :  []
+               , add     :  function( error, sLevel ) {
+                                if( typeof error === 'object' ) {
+                                    error = error.message;
+                                }
+                                if( !sLevel ) {
+                                    sLevel = 'warning';
+                                }
+                                this.aErrors.push( { text   : error
+                                                   , level  : sLevel
+                                                   , added  : new Date()
+                                                   }
+                                                 );
+                            }
+               , remove  :  function( oError ) {
+                                if( this.aErrors.indexOf( oError ) != -1 ) {
+                                    this.aErrors.splice( this.aErrors.indexOf( oError ), 1 );
+                                }
+                            }
+               , clear   :  function() {
+                                this.aErrors = [];
+                            }
+               };
+    } );
+    
+     
+    app.factory( 'TimesheetProvider', ['$q', 'ErrorStack', function( $q, ErrorStack  ) {
+        var oSfTimesheet   = new RemoteObjectModel.Project_Timesheet__c();
+        var aTimesheetList = [];
+        var bLoaded = false;
+            
+        var fGetTimesheetList = function( bReload, timesheet_RecordOffset, timesheet_PageSize ) {
+            var listPromise = $q.defer();
+            
+            if( bLoaded && !bReload ) {
+                listPromise.resolve( aTimesheetList );
+            } else {
+                aTimesheetList = [];
+                bLoaded      = false;
+    
+                // create JSON object with query parameters
+                var QueryParam = { where: { 
+                                        Consultant_Name__c: {eq: '{!$User.FirstName} {!$User.LastName}'}
+                                        } 
+                                      , orderby: [ {Date_of_Work__c: "DESC"} , {Customer_Name__c: "ASC"} ] , limit: timesheet_PageSize };
+                
+                // add offset property separately and only when the record offset is greater than 0 
+                // because the first record would be skipped at offset 1 and offset 0 is invalid
+                if (timesheet_RecordOffset > 0) {
+                    QueryParam.offset = timesheet_RecordOffset;
+                } else {
+                    timesheet_RecordOffset = 0;
+                }
+    
+                oSfTimesheet.retrieve( QueryParam
+                                    , function( err, records ) {
+                                        if( err ) {
+                                            ErrorStack.add( err, 'danger' );
+                                            listPromise.reject();
+                                            return;
+                                        }
+                                        angular.forEach( records, function( oTimesheet ) {
+                                            var sId = oTimesheet.get( 'Id' );
+                                            if( sId ) {
+                                                aTimesheetList.push( { Id        : sId
+                                                                   , Name : oTimesheet.get('Name' )
+                                                                   , Date_of_Work__c : oTimesheet.get('Date_of_Work__c' )
+                                                                   , Project_Name__c : oTimesheet.get('Project_Name__c' )
+                                                                   , Project_Name_Text__c : oTimesheet.get('Project_Name_Text__c' )
+                                                                   , P_Opportunity_Name__c : oTimesheet.get('P_Opportunity_Name__c' )
+                                                                   , Billable__c : oTimesheet.get('Billable__c' )
+                                                                   , Consultant_Name__c : oTimesheet.get('Consultant_Name__c' )
+                                                                   , Customer_Name__c  : oTimesheet.get('Customer_Name__c' )
+                                                                   , Customer__c : oTimesheet.get('Customer__c' )
+                                                                   , Duration__c     : oTimesheet.get('Duration__c')
+                                                                   , Description__c     : oTimesheet.get('Description__c')
+                                                                   , Notes__c     : oTimesheet.get('Notes__c')
+                                                                   , Project_Stage__c     : oTimesheet.get('Project_Stage__c')
+                                                                   } );
+                                            }
+                                        } );
+                                        bLoaded = true;
+                                        listPromise.resolve( aTimesheetList );
+                                    } );
+            }
+            
+            return listPromise.promise;
+        };
+        
+        var fGetTimesheet = function( sId ) {
+            var TimesheetPromise = $q.defer();
+            var bFound = false;
+            if( bLoaded ) {
+                angular.forEach( aTimesheetList, function( oTimesheet ) {
+                    if( oTimesheet.Id == sId ) {
+                         bFound = true;
+                         TimesheetPromise.resolve( oTimesheet );
+                    }
+                } );
+            }
+            
+            if( !bFound ) {
+                oSfTimesheet.retrieve( { limit: 1
+                                     , where: { Id: { eq: sId } }
+                                     }
+                                   , function( err, records ) {
+                                        if( err ) {
+                                            ErrorStack.add( err, 'danger' );
+                                            TimesheetPromise.reject();
+                                            return;
+                                        }
+                                        
+                                        if( records.length < 1 ) {
+                                            ErrorStack.add( 'Could not find Project Timesheet for id: ' + sId, 'warning' ); 
+                                            TimesheetPromise.reject();
+                                            return;
+                                        }
+                                
+                                        var oTimesheet = records[0];
+                                        TimesheetPromise.resolve( { Id : sId
+                                                                   , Name : oTimesheet.get('Name' )
+                                                                   , Date_of_Work__c : oTimesheet.get('Date_of_Work__c' )
+                                                                   , Project_Name__c : oTimesheet.get('Project_Name__c' )
+                                                                   , Project_Name_Text__c : oTimesheet.get('Project_Name_Text__c' )
+                                                                   , P_Opportunity_Name__c : oTimesheet.get('P_Opportunity_Name__c' )
+                                                                   , Billable__c : oTimesheet.get('Billable__c' )
+                                                                   , Consultant_Name__c : oTimesheet.get('Consultant_Name__c' )
+                                                                   , Customer_Name__c  : oTimesheet.get('Customer_Name__c' )
+                                                                   , Customer__c : oTimesheet.get('Customer__c')
+                                                                   , Duration__c : oTimesheet.get('Duration__c')
+                                                                   , Description__c : oTimesheet.get('Description__c')
+                                                                   , Notes__c     : oTimesheet.get('Notes__c')
+                                                                   , Project_Stage__c : oTimesheet.get('Project_Stage__c')
+                                                                } );
+                                     } );
+            }
+            return TimesheetPromise.promise;
+        };
+
+
+        
+        var ptTimesheetList = [];
+        
+        var fGetProjectsTimesheetList = function( pId, bReload, timesheet_RecordOffset, timesheet_PageSize ) {
+            var ptlistPromise = $q.defer();
+            
+            if( bLoaded && !bReload ) {
+                ptlistPromise.resolve( ptTimesheetList );
+            } else {
+                ptTimesheetList = [];
+                bLoaded      = false;
+    
+                // create JSON object with query parameters
+                var QueryParam = { where: { 
+                                        P_Opportunity_Name__c: {eq: pId}
+                                        } 
+                                      , orderby: [ {Date_of_Work__c: "DESC"} , {Customer_Name__c: "ASC"} ] , limit: timesheet_PageSize };
+                
+                // add offset property separately and only when the record offset is greater than 0 
+                // because the first record would be skipped at offset 1 and offset 0 is invalid
+                if (timesheet_RecordOffset > 0) {
+                    QueryParam.offset = timesheet_RecordOffset;
+                } else {
+                    timesheet_RecordOffset = 0;
+                }
+    
+                oSfTimesheet.retrieve( QueryParam
+                                    , function( err, records ) {
+                                        if( err ) {
+                                            ErrorStack.add( err, 'danger' );
+                                            ptlistPromise.reject();
+                                            return;
+                                        }
+                                        angular.forEach( records, function( oTimesheet ) {
+                                            var sId = oTimesheet.get( 'Id' );
+                                            if( sId ) {
+                                                ptTimesheetList.push( { Id        : sId
+                                                                   , Name : oTimesheet.get('Name' )
+                                                                   , Date_of_Work__c : oTimesheet.get('Date_of_Work__c' )
+                                                                   , Project_Name__c : oTimesheet.get('Project_Name__c' )
+                                                                   , Project_Name_Text__c : oTimesheet.get('Project_Name_Text__c' )
+                                                                   , P_Opportunity_Name__c : oTimesheet.get('P_Opportunity_Name__c' )
+                                                                   , Billable__c : oTimesheet.get('Billable__c' )
+                                                                   , Consultant_Name__c : oTimesheet.get('Consultant_Name__c' )
+                                                                   , Customer_Name__c  : oTimesheet.get('Customer_Name__c' )
+                                                                   , Customer__c : oTimesheet.get('Customer__c' )
+                                                                   , Duration__c     : oTimesheet.get('Duration__c')
+                                                                   , Description__c     : oTimesheet.get('Description__c')
+                                                                   , Notes__c     : oTimesheet.get('Notes__c')
+                                                                   , Project_Stage__c     : oTimesheet.get('Project_Stage__c')
+                                                                   } );
+                                            }
+                                        } );
+                                        bLoaded = true;
+                                        ptlistPromise.resolve( ptTimesheetList );
+                                    } );
+            }
+            
+            return ptlistPromise.promise;
+        };
+        
+
+
+        
+        var fSave = function( oTimesheet ) {
+            var SavePromise = $q.defer();
+            var bNew = ( oTimesheet.Id == null );
+            
+            // Cannot do a complete copy (next commented out line)
+            // as we are referencing non-writeable fields
+            // var c = new RemoteObjectModel.Project_Timesheet__c( angular.copy( oTimesheet ) );
+    
+    
+            // instead we create a new timesheet object and set it up 
+            // with the current timesheet values
+            var c = new RemoteObjectModel.Project_Timesheet__c();
+            c.set('Id', oTimesheet.Id);    // Not setting the Id - used as part of the upsert
+            c.set('Date_of_Work__c', oTimesheet.Date_of_Work__c);
+            c.set('Billable__c', oTimesheet.Billable__c);
+            c.set('Consultant_Name__c', oTimesheet.Consultant_Name__c);
+            c.set('Duration__c', oTimesheet.Duration__c);
+            c.set('Project_Stage__c', oTimesheet.Project_Stage__c);
+            c.set('Description__c', oTimesheet.Description__c);
+            c.set('P_Opportunity_Name__c', oTimesheet.P_Opportunity_Name__c);
+            c.set('Project_Name__c', oTimesheet.Project_Name__c);
+            c.set('Customer__c', oTimesheet.Customer__c);
+            c.set('Notes__c', oTimesheet.Notes__c);
+                        
+            c.upsert( function( err, results ) {
+                if( err ) {
+                    ErrorStack.add( err, 'danger' );
+                    SavePromise.reject();
+                    return;
+                }
+                if( bNew && !err ) {
+                    oTimesheet.Id = results[0];
+                    aTimesheetList.push( oTimesheet );
+                    bLoaded     = false;
+                } else if( !bNew && !err ) {
+                    bLoaded     = false;
+                }
+                SavePromise.resolve();
+            } );
+            return SavePromise.promise;
+        };
+        
+        var fDelete = function( oTimesheet ) {
+            var DeletePromise = $q.defer();
+            
+            oSfTimesheet.del( oTimesheet.Id
+                          , function( err ) {
+                                if( err ) {
+                                    ErrorStack.add( err, 'danger' );
+                                    DeletePromise.reject();
+                                    return; 
+                                }
+                                if( aTimesheetList.indexOf( oTimesheet ) != -1 ) {
+                                    aTimesheetList.splice( aTimesheetList.indexOf( oTimesheet ), 1 );
+                                }
+                                DeletePromise.resolve( aTimesheetList );
+                            } );
+                            
+            return DeletePromise.promise;
+        };
+        
+        return { getTimesheetList : fGetTimesheetList
+               , getTimesheet     : fGetTimesheet
+               , getProjectTimesheets : fGetProjectsTimesheetList
+               , save           : fSave
+               , delete         : fDelete
+               };
+    } ] );
+
+
+    
+    app.factory( 'ProjectProvider', ['$q', 'ErrorStack', function( $q, ErrorStack  ) {
+        var oSfProject   = new RemoteObjectModel.Project__c();
+        var aProjectList = [];
+        var bLoaded = false;
+    
+        var fGetProjectList = function( bReload, project_RecordOffset, project_PageSize ) {
+            var listPromise = $q.defer();
+
+            if( bLoaded && !bReload ) {
+                listPromise.resolve( aProjectList );
+            } else {
+                aProjectList = [];
+                bLoaded      = false;
+                
+                // create JSON object with query parameters
+                var QueryParam = { orderby: [ {CreatedDate: 'DESC'}, {Name: 'ASC'} ]
+                                , limit: project_PageSize
+                                , where: { 
+                                            Opportunity_Stage__c: {eq: 'Closed Won'}
+                                         } 
+                                };
+                
+                // add offset property separately and only when the record offset is greater than 0 
+                // because the first record would be skipped at offset 1 and offset 0 is invalid
+                if (project_RecordOffset > 0) {
+                    QueryParam.offset = project_RecordOffset;
+                } else {
+                    project_RecordOffset = 0;
+                }
+                
+                oSfProject.retrieve( QueryParam
+                                    , function( err, records ) {
+                                        if( err ) {
+                                            ErrorStack.add( err, 'danger' );
+                                            listPromise.reject();
+                                            return;
+                                        }
+                                        angular.forEach( records, function( oProject ) {
+                                            var sId = oProject.get( 'Id' );
+                                            if( sId ) {
+                                                aProjectList.push( { Id : sId
+                                                                   , Name : oProject.get('Name' )
+                                                                   , CreatedDate : oProject.get('CreatedDate')
+                                                                   , Opportunity_Name__c : oProject.get('Opportunity_Name__c' )
+                                                                   , Customer_Name__c     : oProject.get('Customer_Name__c')
+                                                                   , Account_ID__c : oProject.get('Account_ID__c')
+                                                                   , Opportunity_Stage__c : oProject.get('Opportunity_Stage__c')
+                                                                   , Client_Name__c : oProject.get('Client_Name__c')
+                                                                   , Time_Carried_Over_Hrs__c : oProject.get('Time_Carried_Over_Hrs__c')
+                                                                   , Estimated_Effort_Hrs__c : oProject.get('Estimated_Effort_Hrs__c')
+                                                                   } );
+                                            }
+                                        } );
+                                        bLoaded = true;
+                                        listPromise.resolve( aProjectList );
+                                    } );
+            }
+            
+            return listPromise.promise;
+        };
+    
+        var fGetProject = function( sId ) {
+            var ProjectPromise = $q.defer();
+            var bFound = false;
+            if( bLoaded ) {
+                angular.forEach( aProjectList, function( oProject ) {
+                    if( oProject.Id == sId ) {
+                         bFound = true;
+                         ProjectPromise.resolve( oProject );
+                    }
+                } );
+            }
+            
+            if( !bFound ) {
+                oSfProject.retrieve( { limit: 1
+                                     , where: { Id: { eq: sId } }
+                                     }
+                                   , function( err, records ) {
+                                        if( err ) {
+                                            ErrorStack.add( err, 'danger' );
+                                            ProjectPromise.reject();
+                                            return;
+                                        }
+                                        
+                                        if( records.length < 1 ) {
+                                            ErrorStack.add( 'Could not find Project Timesheet for id: ' + sId, 'warning' ); 
+                                            ProjectPromise.reject();
+                                            return;
+                                        }
+                                
+                                        var oProject = records[0];
+                                        console.log('populate');
+                                        ProjectPromise.resolve( { Id : sId
+                                                                   , Name : oProject.get('Name' )
+                                                                   , CreatedDate : oProject.get('CreatedDate')
+                                                                   , Opportunity_Name__c : oProject.get('Opportunity_Name__c' )
+                                                                   , Customer_Name__c     : oProject.get('Customer_Name__c')
+                                                                   , Account_ID__c : oProject.get('Account_ID__c')
+                                                                   , Opportunity_Stage__c : oProject.get('Opportunity_Stage__c')
+                                                                   , Client_Name__c : oProject.get('Client_Name__c')
+                                                                   , Time_Carried_Over_Hrs__c : oProject.get('Time_Carried_Over_Hrs__c')
+                                                                   , Estimated_Effort_Hrs__c : oProject.get('Estimated_Effort_Hrs__c')
+                                                                } );
+                                     } );
+            }
+            return ProjectPromise.promise;
+        };
+        
+        
+        return { getProjectList : fGetProjectList
+               , getProject     : fGetProject
+               };
+    } ] );
+    
+    
+    /**
+     * Routes
+     */
+    app.config( function( $routeProvider ) {
+        $routeProvider
+            .when( '/'
+                 , { templateUrl: "root.html"
+                   , controller : "RootCtrl"
+                   } )
+            .when( '/timesheet/:id?'
+                 , { templateUrl: "timesheet.html"
+                   , controller : "TimesheetCtrl"
+                   } )
+            .when( '/timesheet/:id/:modeStr?'
+                 , { templateUrl: "timesheet.html"
+                   , controller : "TimesheetCtrl"
+                   } )
+            .when( '/projects/'
+                 , { templateUrl: "projectsList.html"
+                   , controller : "ProjectsCtrl"
+                   } )
+            .when( '/project/:id'
+                 , { templateUrl: "projectStats.html"
+                   , controller : "ProjectStatsCtrl"
+                   } )
+            .when( '/about/'
+                 , { templateUrl: "about.html"
+                   , controller : "RootCtrl"
+                   } )
+            .when( '/contact/'
+                 , { templateUrl: "contact.html"
+                   , controller : "RootCtrl"
+                   } )
+            .when( '/help/'
+                 , { templateUrl: "help.html"
+                   , controller : "RootCtrl"
+                   } )
+            .otherwise( { redirectTo: "/" } );
+    } );
+
+
+    
+    /**
+     * 4 Controllers
+     */
+    // 1. RootCtrl - My Timesheets
+    app.controller( "RootCtrl", function( $scope, $location, TimesheetProvider, ProjectProvider ) {
+        $scope.bLoaded = false;
+        $scope.aList   = [];
+        $scope.sFilter = '';
+        $scope.timesheet_RecordOffset = 0;
+        $scope.timesheet_PageSize = 50;
+        $scope.timesheet_pagination_direction = 'start';
+        $scope.timesheet_currentPageSize = 0;
+        $scope.timesheet_currentPageNo = 0;
+    
+        
+        $scope.load = function( bReload ) {
+            $scope.bLoaded = false;
+            TimesheetProvider.getTimesheetList( bReload, $scope.timesheet_RecordOffset, $scope.timesheet_PageSize ).then( function( aTimesheets ) {
+                $scope.aList   = aTimesheets;
+                $scope.bLoaded = true;
+                
+                // Pagination initialization
+                $scope.timesheet_currentPageSize = aTimesheets.length;    // current number of records shown
+                $scope.timesheet_currentPageNo = 1;    // on page 1
+                // if the current page size is less than the maximum page size
+                // we disable the next button
+                if ($scope.timesheet_currentPageSize < $scope.timesheet_PageSize)
+                    $('#btnNext').prop('disabled', true);
+                // We're on page 1, so disable the back button
+                $('#btnBack').prop('disabled', true);
+            } );
+        };
+        
+        $scope.paginate = function(direction) {
+            // Ensure the pagination won't go below 0
+            if ((direction == 'back') && ($scope.timesheet_RecordOffset == 0))
+                return false;
+            // or go to the next page if the current pagesize is less than the maximum
+            if ((direction == 'next') && ($scope.timesheet_currentPageSize < $scope.timesheet_PageSize))
+                return false;
+                            
+            // Handle direction
+            if (direction == 'back') {
+                // Update current offset
+                $scope.timesheet_RecordOffset = $scope.timesheet_RecordOffset - $scope.timesheet_PageSize;
+                $scope.timesheet_currentPageNo -= 1;    // change current page number
+                $('#btnNext').prop('disabled', false);    // enable the next button (as we have gone back)
+            } else {
+                // Update current offset
+                $scope.timesheet_RecordOffset = $scope.timesheet_RecordOffset + $scope.timesheet_PageSize;
+                $scope.timesheet_currentPageNo += 1;    // change current page number
+                $('#btnBack').prop('disabled', false);    // enable the back button (as we have gone forward)        
+            }
+            
+            // Just to handle any errors......
+            // If RecordOffset goes below 0 - make it 0.
+            if ($scope.timesheet_RecordOffset < 0) {
+                $scope.timesheet_RecordOffset = 0;
+                $scope.timesheet_currentPageNo = 1; // change the currentPageNo to 1
+            }
+    
+            // Just to handle any errors......
+            // ensure back button is disabled when RecordOffset is 0
+            if ($scope.timesheet_RecordOffset == 0) $('#btnBack').prop('disabled', true);
+    
+            // Reload the Timesheets with the new offset
+            $scope.bLoaded = false;
+            TimesheetProvider.getTimesheetList( true, $scope.timesheet_RecordOffset, $scope.timesheet_PageSize ).then( function( aTimesheets ) {
+                $scope.aList   = aTimesheets;
+                $scope.timesheet_currentPageSize = aTimesheets.length;
+                // Disbale the Next button if the number of timesheets retrieved
+                // is less than the maximum page size
+                if ($scope.timesheet_currentPageSize < $scope.timesheet_PageSize)
+                    $('#btnNext').prop('disabled', true);
+                $scope.bLoaded = true;
+            } );       
+        };
+            
+        $scope.delete = function( oTimesheet ) {
+            TimesheetProvider.delete( oTimesheet )
+                           .then(  function( aTimesheets ) { 
+                                $scope.aList = aTimesheets;
+                            } );
+        };
+        
+        $scope.edit = function( oTimesheet ) {
+            $location.path( '/timesheet/' + oTimesheet.Id );
+        };
+    
+        $scope.clone = function( oTimesheet ) {
+            $location.path( '/timesheet/' + oTimesheet.Id + '/clone' );
+        };
+        
+        $scope.clear = function() {
+            $scope.sFilter = '';
+        };
+        
+        $scope.new = function() {
+            $location.path( '/timesheet/' );
+        };
+        
+        $scope.load();
+    } );
+      
+    
+    // TimesheetCtrl - New/Edit/Clone Timesheet Records
+    app.controller( "TimesheetCtrl", function( $scope, $location, $routeParams, TimesheetProvider, ProjectProvider, ErrorStack ) {
+        $scope.bLoaded    = false;
+        $scope.oTimesheet   = { Id : null
+                            , Name : ''
+                            , Date_of_Work__c : null
+                            , Project_Name__c : ''
+                            , Billable__c : null
+                            , Project_Name_Text__c : null
+                            , P_Opportunity_Name__c : null
+                            , Consultant_Name__c : '{!$User.FirstName} {!$User.LastName}'
+                            , Customer_Name__c  : ''
+                            , Customer__c : null
+                            , Duration__c : ''
+                            , Project_Stage__c : ''
+                            , Description__c : ''
+                            , Notes__c : ''
+                            };
+                            
+        $scope.descriptionOptions = [
+            {name:'Presales'}, 
+            {name:'Analysis'}, 
+            {name:'Consultancy - Admin'}, 
+            {name:'Consultancy - Development'}, 
+            {name:'Training'}, 
+            {name:'Support'}, 
+            {name:'Data Import'}, 
+            {name:'Project Management'}, 
+            {name:'Prep'}];
+    
+        $scope.projectStageOptions = [
+            {name:'Kick-Off'}, 
+            {name:'Analysis & Design'}, 
+            {name:'Build'}, 
+            {name:'Testing'}, 
+            {name:'Training'}, 
+            {name:'Deployment'},
+            {name:'Support'}, 
+            {name:'Time Bank'},
+            {name:'Project Mangement'}];
+    
+        var oSfConsultant   = new RemoteObjectModel.Consultant__c();
+        var aConsultantsList = [];
+        $scope.consultants = [];
+
+        var QueryParam = { orderby: [ {Name: 'ASC'} ] };
+        oSfConsultant.retrieve( QueryParam
+                      , function( err, records ) {
+                          if( err ) {
+                              ErrorStack.add( err, 'danger' );
+                              return;
+                          }
+                          angular.forEach( records, function( oConsultant ) {
+                              var sId = oConsultant.get( 'Id' );
+                              if( sId ) {
+                                  aConsultantsList.push( { Id : sId
+                                         , name : oConsultant.get('User_Name__c' )
+                                  } );
+                              }
+                          }  );
+                          $scope.consultants = aConsultantsList;
+                          }
+                          );
+    
+        $scope.sPrompt = 'Create New Timesheet';
+        $scope.pList   = [];
+        $scope.projectActive = false;
+        $scope.cloneId = '';
+    
+        $scope.load = function( sId ) {
+            var timesheetANDProjectLoaded = 0;
+            ProjectProvider.getProjectList(true, 0, 100).then( function( aProjects ) {
+                $scope.pList = aProjects;
+                timesheetANDProjectLoaded += 1;
+    
+                if (timesheetANDProjectLoaded == 2) {
+                    angular.forEach( $scope.pList, function( oProject ) {                
+                        if(oProject.Id == $scope.oTimesheet.P_Opportunity_Name__c)
+                            $scope.projectActive = true;
+                    } );
+                }
+            } );
+    
+            var fSuccess = function( oTimesheet ) {
+                
+                if($scope.cloneId == 'CLONE') {
+                    oTimesheet.Id = null;
+                    $scope.sPrompt    = 'Clone Timesheet';
+                } else {
+                    $scope.sPrompt    = 'Edit Timesheet';
+                }
+    
+                $scope.oTimesheet   = oTimesheet;
+                $scope.oStart     = angular.copy( oTimesheet );
+                
+    //            alert(JSON.stringify($scope.oStart));
+                
+                $scope.bLoaded    = true;
+                timesheetANDProjectLoaded += 1;
+    
+                if (timesheetANDProjectLoaded == 2) {
+                    angular.forEach( $scope.pList, function( oProject ) {
+                        if(oProject.Id == oTimesheet.P_Opportunity_Name__c)
+                            $scope.projectActive = true;
+                    } );
+                }
+            };
+            
+            TimesheetProvider.getTimesheet( sId )
+                           .then( fSuccess, $scope.cancel );
+    
+        };
+    
+        $scope.loadNew = function(  ) {
+            ProjectProvider.getProjectList(true, 0, 100).then( function( aProjects ) {
+                $scope.pList = aProjects;
+                $scope.bLoaded = true;
+                $scope.projectActive = true;
+            } );
+    
+        };
+    
+        $scope.changeSelectedProject = function() {
+            var projectSuccess = function( aProject ) {
+                $scope.oTimesheet.Project_Name__c = aProject.Opportunity_Name__c;
+                $scope.oTimesheet.P_Opportunity_Name__c = aProject.Id;
+                $scope.oTimesheet.Customer__c = aProject.Account_ID__c;
+                $scope.oTimesheet.Customer_Name__c = aProject.Client_Name__c;
+            };
+            var projectFailure = function() {
+                ErrorStack.add( 'Could not find project data', 'danger' );
+            };
+            ProjectProvider.getProject( $scope.oTimesheet.P_Opportunity_Name__c )
+                           .then( projectSuccess, projectFailure );
+    
+        };
+        
+        $scope.cancel = function( bClearErrors ) {
+            if( bClearErrors ) {
+                ErrorStack.clear();
+            }
+            angular.copy( $scope.oStart, $scope.oTimesheet );
+            $location.path( '/' );
+        };
+        
+        $scope.save = function() {
+            ErrorStack.clear();
+            TimesheetProvider.save( $scope.oTimesheet )
+                           .then( function() { 
+                                $location.path( '/' );
+                            } );
+        }
+        
+        if( $routeParams.modeStr ) {
+            $scope.cloneId = 'CLONE';
+        }
+        if( $routeParams.id ) {
+            $scope.load( $routeParams.id );
+        } else {
+            $scope.loadNew();
+    //        $scope.bLoaded = true;
+        }
+    } );
+
+
+    // 3. ProjectsCtrl - My Timesheets
+    app.controller( "ProjectsCtrl", function( $scope, $location, TimesheetProvider, ProjectProvider ) {
+        $scope.bLoaded = false;
+        $scope.pList   = [];
+        $scope.sFilter = '';
+        $scope.projects_RecordOffset = 0;
+        $scope.projects_PageSize = 50;
+        $scope.projects_pagination_direction = 'start';
+        $scope.projects_currentPageSize = 0;
+        $scope.projects_currentPageNo = 0;
+
+        
+        $scope.load = function( bReload ) {
+            $scope.bLoaded = false;
+            
+            ProjectProvider.getProjectList(true, $scope.projects_RecordOffset, $scope.projects_PageSize).then( function( aProjects ) {
+                $scope.pList = aProjects;
+                $scope.bLoaded = true;
+                
+                // Pagination initialization
+                $scope.projects_currentPageSize = aProjects.length;    // current number of records shown
+                $scope.projects_currentPageNo = 1;    // on page 1
+                // if the current page size is less than the maximum page size
+                // we disable the next button
+                if ($scope.projects_currentPageSize < $scope.projects_PageSize)
+                    $('#btnNext').prop('disabled', true);
+                // We're on page 1, so disable the back button
+                $('#btnBack').prop('disabled', true);
+            } );
+            
+        };
+        
+        $scope.paginate = function(direction) {
+            alert(direction);
+            // Ensure the pagination won't go below 0
+            if ((direction == 'back') && ($scope.projects_RecordOffset == 0))
+                return false;
+            // or go to the next page if the current pagesize is less than the maximum
+            if ((direction == 'next') && ($scope.projects_currentPageSize < $scope.projects_PageSize))
+                return false;
+                            
+            // Handle direction
+            if (direction == 'back') {
+                // Update current offset
+                $scope.projects_RecordOffset = $scope.projects_RecordOffset - $scope.projects_PageSize;
+                $scope.projects_currentPageNo -= 1;    // change current page number
+                $('#btnNext').prop('disabled', false);    // enable the next button (as we have gone back)
+            } else {
+                // Update current offset
+                $scope.projects_RecordOffset = $scope.projects_RecordOffset + $scope.timesheet_PageSize;
+                $scope.projects_currentPageNo += 1;    // change current page number
+                $('#btnBack').prop('disabled', false);    // enable the back button (as we have gone forward)        
+            }
+            
+            // Just to handle any errors......
+            // If RecordOffset goes below 0 - make it 0.
+            if ($scope.projects_RecordOffset < 0) {
+                $scope.projects_RecordOffset = 0;
+                $scope.projects_currentPageNo = 1; // change the currentPageNo to 1
+            }
+    
+            // Just to handle any errors......
+            // ensure back button is disabled when RecordOffset is 0
+            if ($scope.projects_RecordOffset == 0) $('#btnBack').prop('disabled', true);
+    
+            // Reload the projects with the new offset
+            $scope.bLoaded = false;
+            ProjectProvider.getProjectList( true, $scope.projects_RecordOffset, $scope.projects_PageSize ).then( function( aProjects ) {
+                $scope.aList   = aProjects;
+                $scope.projects_currentPageSize = aProjects.length;
+                // Disbale the Next button if the number of projects retrieved
+                // is less than the maximum page size
+                if ($scope.projects_currentPageSize < $scope.projects_PageSize)
+                    $('#btnNext').prop('disabled', true);
+                $scope.bLoaded = true;
+            } );       
+        };
+
+        
+        $scope.openProject = function( oProject ) {
+            $location.path( '/project/' + oProject.Id );
+        };
+            
+        $scope.clear = function() {
+            $scope.sFilter = '';
+        };
+                
+        $scope.load();
+    } );
+      
+    
+    // 4. ProjectStatsCtrl - Individual Project Analysis
+    app.controller( "ProjectStatsCtrl", function( $scope, $location, $routeParams, TimesheetProvider, ProjectProvider, ErrorStack ) {
+        $scope.bLoaded    = false;
+        $scope.oProject   = { Id : null
+                            , Name : ''
+                            , CreatedDate : null
+                            , Opportunity_Name__c : ''
+                            , Customer_Name__c : ''
+                            , Account_ID__c : null
+                            , Opportunity_Stage__c : null
+                            , Client_Name__c : null
+                            , Time_Carried_Over_Hrs__c : null
+                            , Estimated_Effort_Hrs__c : null
+                            };
+                            
+        $scope.descriptionOptions = [
+            {name:'Presales'}, 
+            {name:'Analysis'}, 
+            {name:'Consultancy - Admin'}, 
+            {name:'Consultancy - Development'}, 
+            {name:'Training'}, 
+            {name:'Support'}, 
+            {name:'Data Import'}, 
+            {name:'Project Management'}, 
+            {name:'Prep'}];
+    
+        $scope.projectStageOptions = [
+            {name:'Kick-Off'}, 
+            {name:'Analysis & Design'}, 
+            {name:'Build'}, 
+            {name:'Testing'}, 
+            {name:'Training'}, 
+            {name:'Deployment'},
+            {name:'Support'}, 
+            {name:'Time Bank'},
+            {name:'Project Mangement'}];
+    
+    
+    
+    
+        var oSfConsultant   = new RemoteObjectModel.Consultant__c();
+        var aConsultantsList = [];
+        $scope.consultants = [];
+
+        var QueryParam = { orderby: [ {Name: 'ASC'} ] };
+        oSfConsultant.retrieve( QueryParam
+                      , function( err, records ) {
+                          if( err ) {
+                              ErrorStack.add( err, 'danger' );
+                              return;
+                          }
+                          angular.forEach( records, function( oConsultant ) {
+                              var sId = oConsultant.get( 'Id' );
+                              if( sId ) {
+                                  aConsultantsList.push( { Id : sId
+                                         , name : oConsultant.get('User_Name__c' )
+                                  } );
+                              }
+                          }  );
+                          $scope.consultants = aConsultantsList;
+                          }
+                          );
+    
+
+
+    
+        $scope.sPrompt = 'Project Stats';
+        $scope.sClientName = 'Project Stats';
+        $scope.pList   = [];
+        $scope.projectActive = false;
+
+        $scope.sFilter = '';
+        $scope.projects_RecordOffset = 0;
+        $scope.projects_PageSize = 50;
+        $scope.projects_pagination_direction = 'start';
+        $scope.projects_currentPageSize = 0;
+        $scope.projects_currentPageNo = 0;
+    
+            
+        $scope.load = function( sId ) {
+            var timesheetANDProjectLoaded = 0;
+    
+            var fSuccess = function( oProject ) {
+                $scope.oProject   = oProject;                
+                $scope.sPrompt = oProject.Name;
+                $scope.sClientName = '(' + oProject.Client_Name__c + ')';
+
+                TimesheetProvider.getProjectTimesheets( oProject.Id, true, $scope.timesheet_RecordOffset, $scope.timesheet_PageSize ).then( function( aTimesheets ) {
+                    $scope.pList   = aTimesheets;
+                    $scope.bLoaded = true;
+                    
+                    // Pagination initialization
+                    $scope.timesheet_currentPageSize = aTimesheets.length;    // current number of records shown
+                    $scope.timesheet_currentPageNo = 1;    // on page 1
+                    // if the current page size is less than the maximum page size
+                    // we disable the next button
+                    if ($scope.timesheet_currentPageSize < $scope.timesheet_PageSize)
+                        $('#btnNext').prop('disabled', true);
+                    // We're on page 1, so disable the back button
+                    $('#btnBack').prop('disabled', true);
+                    
+                    
+                    
+                    // CHARTING
+                    
+                    // Initialize the arrays
+
+                    var ttl = 0;
+                    if(oProject.Time_Carried_Over_Hrs__c) ttl = oProject.Time_Carried_Over_Hrs__c;
+                    if(oProject.Estimated_Effort_Hrs__c) ttl += oProject.Estimated_Effort_Hrs__c;
+                    var hoursData = [
+                        ['Estimated and Carried Over', ttl],
+                        ['Timesheets Added', 0]
+                      ];
+                    var consultantData = new Array();    
+                    var billableData = [
+                        ['Billable', 0],
+                        ['Non-Billable', 0]
+                    ];                
+                    var stageData = new Array();
+                    var descData = new Array();     
+                    
+                    // Loop through the Timesheets to populate the arrays
+                    for(i = 0; i < aTimesheets.length; i++) {                        
+                        // Hours Array
+                        if (aTimesheets[i].Duration__c != null && aTimesheets[i].Duration__c != '')
+                            hoursData[1][1] += parseFloat(aTimesheets[i].Duration__c);
+
+                        // Consultants Array
+                        var addElem = true;
+                        var j = 0;
+                        while (j < consultantData.length && addElem) {
+                            if (consultantData[j][0] == aTimesheets[i].Consultant_Name__c) {
+                                addElem = false;
+                                consultantData[j][1] += parseFloat(aTimesheets[i].Duration__c);
+                            }
+                            j++;
+                        }
+                        if (addElem) 
+                            consultantData[consultantData.length] = [aTimesheets[i].Consultant_Name__c, parseFloat(aTimesheets[i].Duration__c)];
+
+                        // Billable Array
+                        if (aTimesheets[i].Billable__c) {
+                            billableData[0][1] += parseFloat(aTimesheets[i].Duration__c);
+                        } else {                                
+                            billableData[1][1] += parseFloat(aTimesheets[i].Duration__c);
+                        }
+
+                        // Stage Array
+                        addElem = true;
+                        j = 0;
+                        while (j < stageData.length && addElem) {
+                            if (stageData[j][0] == aTimesheets[i].Project_Stage__c) {
+                                addElem = false;
+                                stageData[j][1] += parseFloat(aTimesheets[i].Duration__c);
+                            }
+                            j++;
+                        }
+                        if (addElem) 
+                            stageData[stageData.length] = [aTimesheets[i].Project_Stage__c, parseFloat(aTimesheets[i].Duration__c)];
+
+
+                        // Descriptions Array
+                        addElem = true;
+                        j = 0;
+                        while (j < descData.length && addElem) {
+                            if (descData[j][0] == aTimesheets[i].Description__c) {
+                                addElem = false;
+                                descData[j][1] += parseFloat(aTimesheets[i].Duration__c);
+                            }
+                            j++;
+                        }
+                        if (addElem) 
+                            descData[descData.length] = [aTimesheets[i].Description__c, parseFloat(aTimesheets[i].Duration__c)];
+                    }
+                    
+                    // Now generate Charts
+                    generateChart(hoursData, '#hours_chart', 'bar', 'Hours');                    
+                    generateChart(consultantData, '#consultants_chart', 'pie', 'Consultant Hours');    
+                    generateChart(billableData, '#billable_chart', 'pie', 'Billable Analysis');
+                    generateChart(stageData, '#stage_chart', 'pie', 'Project Stages');
+                    generateChart(descData, '#desc_chart', 'pie', 'Project Descriptions');
+                    
+                } );
+                
+                                             
+            };
+
+            /*
+            var fSuccess1 = function( oProject ) {
+                $scope.oProject   = oProject;                
+                $scope.bLoaded    = true;
+                $scope.sPrompt = oProject.Name;
+                $scope.sClientName = '(' + oProject.Client_Name__c + ')';
+                
+                TimesheetProvider.getProjectTimesheet( oProject.Id )
+                           .then( fSuccess1, $scope.cancel );
+                
+            };
+            */
+            
+            ProjectProvider.getProject( sId )
+                           .then( fSuccess, $scope.cancel );
+    
+        };
+        
+        
+        function generateChart(consultantData, bindId, mtype, mtitle) {
+            if (mtype == 'pie') {
+                var chart = c3.generate({
+                    bindto: bindId,
+                    data: {
+                      columns: consultantData,
+                      type: mtype,
+                      value: function (value, ratio, id) {
+                        return d3.format(',')(value);
+                      }
+                    },
+                    axis: {
+                      y: {
+                        label: 'Hours'
+                      }
+                    },
+                    pie: {
+                        label: {
+                          format: function(value, ratio, id) {
+                            return value;
+                          }
+                        }
+                    },
+                    tooltip: {
+                        format: {
+                            title: function (d) { return mtitle; },
+                            value: function (value, ratio, id) {
+                                return d3.format(',')(value);
+                            }
+                        }
+                    }
+                });  
+            } else {
+                
+                var chart = c3.generate({
+                    bindto: bindId,
+                    data: {
+                      columns: consultantData,
+                      type: mtype,
+                      value: function (value, ratio, id) {
+                        return d3.format(',')(value);
+                      }
+                    },
+                    axis: {
+                      y: {
+                        label: 'Hours'
+                      }
+                    }
+                });  
+                
+            }
+        }
+        
+        $scope.cancel = function() {
+            $location.path( '/projects/' );
+        };
+        
+        if( $routeParams.id ) {
+            $scope.load( $routeParams.id );
+        } else {
+            $location.path( '/projects/' );
+        }
+    } );
+    
+    
+    
+    /**
+     * Directives
+     */
+    // For Error Handling
+    app.directive( 'errorblock', ['ErrorStack', function( ErrorStack ) {
+        return { restrict     : "E"
+               , scope        : {}
+               , templateUrl  : 'errors.html'
+               , link         : function( scope, element, attrs ) {
+                                    console.log( 'hiya' );
+                                    scope.stack = ErrorStack;
+                                }
+               };
+    } ] );
+    
+    // For Tabs - Bootstrap
+    app.directive('showtab',
+    function () {
+        return {
+            link: function (scope, element, attrs) {
+                element.click(function(e) {
+                    e.preventDefault();
+                    $(element).tab('show');
+                });
+            }
+        };
+    });
+    
+    </script>
+</body>    
+</apex:page>

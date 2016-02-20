@@ -1,0 +1,58 @@
+<aura:component controller="ProjectTimesheetsHandler" implements="force:appHostable,flexipage:availableForAllPageTypes">
+    
+    <aura:attribute name="myTimesheets" type="Project_Timesheet__c[]"/>
+    <aura:attribute name="searchKey" type="String" default=""/>
+    <aura:attribute name="page" type="integer"/>
+    <aura:attribute name="pages" type="integer"/>
+    <aura:attribute name="total" type="integer"/>
+    <aura:attribute name="pageSize" type="integer" default="8"/>
+    
+    <aura:attribute name="projectId" type="String" default=""/>
+
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+    <aura:handler event="c:ProjectTimesheetPageChange" action="{!c.pageChange}"/>
+    <aura:handler event="c:ProjectTimesheetRefresh" action="{!c.refreshList}"/>
+    <aura:handler event="c:ProjectTimesheetSearchKeyChange" action="{!c.searchKeyChange}"/>
+	<aura:registerEvent name="MyTimesheetsCmpRouter" type="c:MyTimesheetsCmpRouter"/>
+
+    <div class="slds-grid slds-wrap">
+        <div class="slds-col slds-size--1-of-1 slds-medium-size--3-of-6 slds-large-size--6-of-12">
+            <c:ProjectTimesheets_SearchBar />
+        </div>
+        <div class="slds-col slds-size--1-of-1 slds-medium-size--3-of-6 slds-large-size--6-of-12">
+			<c:ProjectTimesheetPaginator page="{!v.page}" pages="{!v.pages}" total="{!v.total}"/>
+        </div>
+    </div>
+
+
+    
+    <table class="slds-table slds-table--bordered slds-max-medium-table--stacked-horizontal">
+        <thead>
+            <tr class="slds-text-heading--label">
+                <th class="slds-is-sortable" scope="col">
+                    <span class="slds-truncate">Date</span>
+                </th>
+                <th scope="col">
+                    <span class="slds-truncate">Project</span>
+                </th>
+                <th scope="col">
+                    <span class="slds-truncate">Client</span>
+                </th>
+                <th scope="col">
+                    <span class="slds-truncate">Hours</span>
+                </th>
+                <th scope="col">
+                    <span class="slds-truncate"></span>
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            <aura:iteration var="timesheet" items="{!v.myTimesheets}">
+                <c:TimesheetRowItem timesheet="{!timesheet}" />
+            </aura:iteration>
+        </tbody>
+    </table>
+
+	<c:ProjectTimesheetPaginator page="{!v.page}" pages="{!v.pages}" total="{!v.total}"/>
+    
+</aura:component>

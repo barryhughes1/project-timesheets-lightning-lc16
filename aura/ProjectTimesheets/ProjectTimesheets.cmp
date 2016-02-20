@@ -1,0 +1,118 @@
+<aura:component implements="force:appHostable,flexipage:availableForAllPageTypes">
+    <ltng:require styles="/resource/SLDS/assets/styles/salesforce-lightning-design-system-ltng.css"/>
+    <div class="slds">
+        <c:Titlebar title="Project Timesheets" 
+                    iconCategoryRight="utility"
+                    iconNameRight="add" 
+                    />
+        <c:tabs >
+            <c:tab title="My Timesheets">
+                <div class="slds-card">
+                    <div class="slds-card__header slds-grid">
+                        <h2 class="slds-text-heading--small slds-truncate">
+                           My Timesheets
+                        </h2>
+                    </div>
+                    <div class="slds-card__body" style="background-color:white; padding:5px">
+		                <c:MyProjectTimesheets />  
+                    </div>
+                </div>
+            </c:tab>
+            <c:tab title="Projects">
+                <div class="slds-card">
+                    <div class="slds-card__header slds-grid">
+                        <h2 class="slds-text-heading--small slds-truncate">
+                           Active Projects
+                        </h2>
+                    </div>
+                    <div class="slds-card__body" style="background-color:white; padding:5px">
+		                <c:AllProjects />
+                    </div>
+                </div>
+            </c:tab>
+            <c:tab title="About">
+                <div class="slds-card">
+                    <div class="slds-card__header slds-grid">
+                        <h2 class="slds-text-heading--small slds-truncate">
+                           About Project Timesheets
+                        </h2>
+                    </div>
+                    <div class="slds-card__body" style="background-color:white; padding:5px">
+                    <p>The app provides users with a more user-friendly way to view and manage their Project Timesheet records. Users can Add, Edit, Delete and Clone records while also being able to filter their own timesheet records easily.</p>
+                    <br/>
+                    <p>The app also provides managers with a project level view of timesheets with clear graphical indications on the status of project timesheet duration statistics in real-time.</p>
+                    </div>
+                </div>
+            </c:tab>
+            <c:tab title="Contact">        
+                <div class="slds-card">
+                    <div class="slds-card__header slds-grid">
+                        <h2 class="slds-text-heading--small slds-truncate">
+                           Developed By
+                        </h2>
+                    </div>
+                    <div class="slds-card__body" style="background-color:white; padding:5px">
+                    <p>Developer: Barry Hughes</p>
+                    <br/>
+                    <p>Contact me on Twitter: @devinthecloud</p>
+                    <br/>
+                    <p>Blog: <a href="http://devinthecloud.wordpress.com" target="_blank">devinthecloud.wordpress.com</a></p>
+                    </div>
+                </div>
+            </c:tab>
+            <c:tab title="Help">
+                <div class="slds-card">
+                    <div class="slds-card__header slds-grid">
+                        <h2 class="slds-text-heading--small slds-truncate">
+                            1. Purpose of the Project Timesheets App?
+                        </h2>
+                    </div>
+                    <div class="slds-card__body" style="background-color:white; padding:5px">
+                        <p>The app provides users with a more user-friendly way to view and manage their Project Timesheet records. Users can Add, Edit, Delete and Clone records while also being able to filter their own timesheet records easily.</p>
+                        <br/>
+                        <p>The app also provides managers with a project level view of timesheets with clear graphical indications on the status of project timesheet duration statistics in real-time.</p>
+                    </div>
+                </div>
+                <div class="slds-card">
+                    <div class="slds-card__header slds-grid">
+                        <h2 class="slds-text-heading--small slds-truncate">
+                            2. My Timesheets
+                        </h2>
+                    </div>
+                    <div class="slds-card__body" style="background-color:white; padding:5px">
+                        <p>My Timesheets is the are users can view all of their most recent 50 timesheet records. The page is paginated and the set of records displayed can be controlled with toggles on top.</p>
+                        <br/>
+                        <p>My Timesheets allows users to easily edit, clone or delete timesheet records using the actions for each row. The 'Clone' feature makes a copy of the record in memory but it is not saved until the user clicks the 'Save' button.</p>
+                        <br/>
+						<p>New Timesheets can be added via the '+' button on the panel header.</p>
+                    </div>
+                </div>
+                <div class="slds-card">
+                    <div class="slds-card__header slds-grid">
+                        <h2 class="slds-text-heading--small slds-truncate">
+                           3. Active Projects
+                        </h2>
+                    </div>
+                    <div class="slds-card__body" style="background-color:white; padding:5px">
+                        <p>The Active Projects screen allows the user to view and search for specific projects where the Opportunity is at 'Closed/Won' stage.</p>
+                        <br/>
+                        <p>Clicking/Pressing on a Project record will open up a Project analysis screen where the user can see:</p>
+                        <br/>
+                        <ol>
+                            <li>Project Details</li>
+                            <li>A searchable list of Project Timesheets</li>
+                            <li>Analysis of Hours spent vs Hours budgeted for</li>
+                            <li>Analysis of Billable time vs non-Billable time</li>
+                            <li>Analysis of hours spent by Consultant</li>
+                            <li>Analysis of hours spent at Project Stages</li>
+                            <li>Analysis of hours spent at each Project Task</li>
+                        </ol>
+                        <br/>
+                        <p>Note: This screen only shows up to 100 timesheet records per project and all analysis is based on those first 100 records.</p>
+                    </div>
+                </div>
+            </c:tab>
+        </c:tabs>
+        
+    </div>
+</aura:component>

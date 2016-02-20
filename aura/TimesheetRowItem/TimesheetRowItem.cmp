@@ -1,0 +1,41 @@
+<aura:component >
+	
+	<aura:attribute name="timesheet" type="Project_Timesheet__c"/>
+	<aura:registerEvent name="MyTimesheetsCmpRouter" type="c:MyTimesheetsCmpRouter"/>
+    <span style="display:none">
+	    <ui:outputText aura:id="timesheetId" value="{!v.timesheet.Id}"/>    
+    </span>
+
+    <tr id="{!v.timesheet.Id}" class="slds-hint-parent">
+        <td data-label="date" role="row"><a onclick="{!c.viewRecord}" class="slds-truncate">{!v.timesheet.Date_of_Work_Text__c}</a></td>
+        <td data-label="project">
+            <span class="slds-truncate">{!v.timesheet.Project_Name_Text__c}</span>
+        </td>
+        <td data-label="client">
+            <span class="slds-truncate">{!v.timesheet.Customer_Name__c}</span>
+        </td>
+        <td data-label="hours">
+            <span class="slds-truncate">{!v.timesheet.Duration__c}</span>
+        </td>
+        <td>
+            <span class="slds-truncate">                        
+                <c:buttonGroup >         
+                    <c:button type="brand" 
+                              label="Edit"
+                              data="{!v.timesheet.Id}"
+                              press="{!c.editRecord}"/>
+                    
+                    <c:button type="neutral" 
+                              label="Clone" 
+                              press="{!c.cloneRecord}" />
+                    
+                    <c:button type="destructive" 
+                              label="Delete" 
+                              press="{!c.deleteRecord}"/>
+                    
+                </c:buttonGroup>  
+            </span>
+        </td>
+    </tr>
+    
+</aura:component>

@@ -1,0 +1,21 @@
+<aura:component >
+	<aura:dependency resource="markup://c:ProjectTimesheetForm" />
+    
+    <aura:attribute name="currentView" 
+                    type="String"  
+                    access="PRIVATE"
+                    default="myTimesheets"
+                    description="The currently active view" />
+<!--
+    <aura:handler event="c:AllProjectsCmpRouter" action="{!c.handleAllProjectsCmpRouter}"/>
+-->
+    
+	<div class="routeContainer" aura:id="routeContainer">      
+        <div aura:id="myTimesheets" class="route">
+          <c:AllProjectsList aura:id="AllProjectsListCmp"  />
+        </div>
+
+     	<div aura:id="recordRoute" class="route route--off">
+     	</div>
+	</div>
+</aura:component>

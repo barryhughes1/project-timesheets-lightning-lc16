@@ -1,0 +1,6 @@
+<aura:event type="APPLICATION" 
+            description="Raise when user opens a record">
+    <aura:attribute name="pageToOpen" type="String"/>
+    <aura:attribute name="recordId" type="String"/>
+    <aura:attribute name="formData" type="Object"/>
+</aura:event>

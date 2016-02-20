@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<AuraDefinitionBundle xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>35.0</apiVersion>
+    <description>Component contains the list of all projects and the mechanism for opening the timesheet records SPA for that project.
+
+It will also contain charts and data for the project itself.</description>
+</AuraDefinitionBundle>

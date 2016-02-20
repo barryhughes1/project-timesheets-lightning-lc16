@@ -1,0 +1,65 @@
+<aura:component controller="ProjectsHandler" implements="force:appHostable,flexipage:availableForAllPageTypes">
+	
+    <aura:attribute name="projects" type="Project__c[]"/>
+    <aura:attribute name="opportunityId" type="String" default=""/>
+	<aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+<!--
+    <aura:registerEvent name="MyTimesheetsCmpRouter" type="c:MyTimesheetsCmpRouter"/>
+    <aura:handler event="c:ProjectTimesheetRefresh" action="{!c.refreshList}"/>
+-->
+    
+    <!--
+	<force:recordView recordId="a0024000008nAeZAAU" type="FULL"/>
+<force:recordEdit aura:id="edit" recordId="a0024000008nAeZAAU"/>
+<ui:button label="Save" press="{!c.save}"/>
+    <c:ProjectTimesheetForm />
+    -->
+    
+    <table class="slds-table slds-table--bordered slds-max-medium-table--stacked-horizontal">
+        <thead>
+            <tr class="slds-text-heading--label">
+                <th class="slds-is-sortable" scope="col">
+                    <span class="slds-truncate">Date</span>
+                </th>
+                <th scope="col">
+                    <span class="slds-truncate">Project</span>
+                </th>
+                <th scope="col">
+                    <span class="slds-truncate">Client</span>
+                </th>
+                <th scope="col">
+                    <span class="slds-truncate">Estimated</span>
+                </th>
+                <th scope="col">
+                    <span class="slds-truncate">Carried</span>
+                </th>
+                <th scope="col">
+                    <span class="slds-truncate">Total</span>
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            <aura:iteration var="project" items="{!v.projects}">
+                <tr id="{!project.Id}" class="slds-hint-parent">
+                    <td data-label="date" role="row"><a href="#" onclick="{!c.viewRecord}" class="slds-truncate">{!project.Project_Date_Text__c}</a></td>
+                    <td data-label="project">
+                        <span class="slds-truncate">{!project.Name}</span>
+                    </td>
+                    <td data-label="client">
+                        <span class="slds-truncate">{!project.Client_Name__c}</span>
+                    </td>
+                    <td data-label="hours">
+                        <span class="slds-truncate">{!project.Estimated_Effort_Hrs__c}</span>
+                    </td>
+                    <td data-label="hours">
+                        <span class="slds-truncate">{!project.Time_Carried_Over_Hrs__c}</span>
+                    </td>
+                    <td data-label="hours">
+                        <span class="slds-truncate">{!project.Time_Carried_Over_Hrs__c}</span>
+                    </td>
+                </tr>
+            </aura:iteration>
+        </tbody>
+    </table>
+
+</aura:component>

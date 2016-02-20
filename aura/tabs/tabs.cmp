@@ -1,0 +1,31 @@
+<aura:component access="GLOBAL">
+    <aura:attribute name="items" type="Aura.Component[]" access="GLOBAL" description="The tab items."/>
+    <aura:attribute name="type" type="String" access="GLOBAL" default="default" description="The type of tabs - scoped, default, task."/>	
+    <aura:attribute name="class" type="String" access="GLOBAL" description="The class(es) to add."/>	
+    <aura:attribute name="style" type="String" access="GLOBAL" description="The style(s) to add."/>	
+    <aura:attribute name="tabsClass" type="String" access="GLOBAL" description="Override class(es)."/>
+    
+    <aura:attribute name="gen_class" type="String" description="Generated class for the tabs."/>
+    <aura:attribute name="gen_nav_class" type="String" description="Generated class for the tab nav."/>
+    <aura:attribute name="nav_items" type="Object[]" description="Generated items for each tab."/>
+    
+    <aura:handler name="init" value="{!this}" action="{!c.init}"/>
+    
+    <aura:handler name="change" value="{!v.show}" action="{!c.update}"/>
+    
+    <div class="{!v.gen_class}" role="tablist">
+  		<ul class="{!v.gen_nav_class}" role="presentation">
+            <aura:iteration items="{!v.nav_items}" var="nav_item" indexVar="idx">
+                <li class="{!nav_item.class + (nav_item.active == true ? ' slds-active' : '')}" title="{!nav_item.title}" role="presentation">
+                  <a role="tab" tabindex="{!idx}" aria-selected="{!nav_item.active == true ? 'true' : 'false'}" onclick="{!c.selectTab}">{!nav_item.title}</a>
+                </li>
+            </aura:iteration>
+        </ul>      
+        <aura:iteration items="{!v.items}" var="item" indexVar="idx">
+            {!item}
+        </aura:iteration>
+        <div class="hidden">
+        	{!v.body}
+        </div>
+    </div>
+</aura:component>

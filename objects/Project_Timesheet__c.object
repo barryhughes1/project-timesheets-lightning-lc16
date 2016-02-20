@@ -1,0 +1,435 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <actionOverrides>
+        <actionName>Accept</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>CancelEdit</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Clone</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Delete</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Edit</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Follow</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>List</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>New</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>SaveEdit</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Tab</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>View</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <allowInChatterGroups>false</allowInChatterGroups>
+    <compactLayoutAssignment>SF1_Layout</compactLayoutAssignment>
+    <compactLayouts>
+        <fullName>SF1_Layout</fullName>
+        <fields>Consultant_Name__c</fields>
+        <fields>P_Opportunity_Name__c</fields>
+        <fields>Date_of_Work__c</fields>
+        <fields>Duration__c</fields>
+        <fields>Billable__c</fields>
+        <fields>For_Review__c</fields>
+        <label>SF1 Layout</label>
+    </compactLayouts>
+    <deploymentStatus>Deployed</deploymentStatus>
+    <description>Tracks project status info</description>
+    <enableActivities>true</enableActivities>
+    <enableBulkApi>true</enableBulkApi>
+    <enableEnhancedLookup>true</enableEnhancedLookup>
+    <enableFeeds>false</enableFeeds>
+    <enableHistory>false</enableHistory>
+    <enableReports>true</enableReports>
+    <enableSharing>true</enableSharing>
+    <enableStreamingApi>true</enableStreamingApi>
+    <fields>
+        <fullName>Billable__c</fullName>
+        <defaultValue>true</defaultValue>
+        <externalId>false</externalId>
+        <inlineHelpText>Deselect if work will not be billed to the client.</inlineHelpText>
+        <label>Billable</label>
+        <trackTrending>false</trackTrending>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>Consultant_Name__c</fullName>
+        <externalId>false</externalId>
+        <label>Consultant/Trainer Name</label>
+        <length>255</length>
+        <required>false</required>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Consultant__c</fullName>
+        <deleteConstraint>SetNull</deleteConstraint>
+        <externalId>false</externalId>
+        <label>Consultant</label>
+        <referenceTo>Consultant__c</referenceTo>
+        <relationshipLabel>Project Timesheets</relationshipLabel>
+        <relationshipName>Project_Timesheets</relationshipName>
+        <required>false</required>
+        <trackTrending>false</trackTrending>
+        <type>Lookup</type>
+    </fields>
+    <fields>
+        <fullName>Customer_Name__c</fullName>
+        <externalId>false</externalId>
+        <formula>Customer__r.Name</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <label>Customer Name</label>
+        <required>false</required>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Customer__c</fullName>
+        <deleteConstraint>SetNull</deleteConstraint>
+        <externalId>false</externalId>
+        <label>Customer</label>
+        <referenceTo>Account</referenceTo>
+        <relationshipLabel>Project Timesheets</relationshipLabel>
+        <relationshipName>Project_Timesheets</relationshipName>
+        <required>false</required>
+        <trackTrending>false</trackTrending>
+        <type>Lookup</type>
+    </fields>
+    <fields>
+        <fullName>Date_of_Work__c</fullName>
+        <defaultValue>Today()</defaultValue>
+        <externalId>false</externalId>
+        <label>Date of Work</label>
+        <required>false</required>
+        <trackTrending>false</trackTrending>
+        <type>Date</type>
+    </fields>
+    <fields>
+        <fullName>Description__c</fullName>
+        <externalId>false</externalId>
+        <label>Description</label>
+        <picklist>
+            <picklistValues>
+                <fullName>Presales</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Analysis</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Consultancy - Admin</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Consultancy - Development</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Training</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Support</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Data Import</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Project Management</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Prep</fullName>
+                <default>false</default>
+            </picklistValues>
+            <sorted>false</sorted>
+        </picklist>
+        <trackTrending>false</trackTrending>
+        <type>Picklist</type>
+    </fields>
+    <fields>
+        <fullName>Duration__c</fullName>
+        <externalId>false</externalId>
+        <label>Duration (Hours)</label>
+        <precision>18</precision>
+        <required>false</required>
+        <scale>2</scale>
+        <trackTrending>false</trackTrending>
+        <type>Number</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>For_Review__c</fullName>
+        <defaultValue>false</defaultValue>
+        <externalId>false</externalId>
+        <inlineHelpText>Indicates to Project Manager that clarification is needed on whether time is billable, out of hours work or TimeBank hours.</inlineHelpText>
+        <label>For Review</label>
+        <trackTrending>false</trackTrending>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>Notes__c</fullName>
+        <externalId>false</externalId>
+        <label>Notes</label>
+        <length>32768</length>
+        <trackTrending>false</trackTrending>
+        <type>Html</type>
+        <visibleLines>25</visibleLines>
+    </fields>
+    <fields>
+        <fullName>Out_of_Hours__c</fullName>
+        <defaultValue>false</defaultValue>
+        <externalId>false</externalId>
+        <label>Out of Hours?</label>
+        <trackTrending>false</trackTrending>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>P_Opportunity_Name__c</fullName>
+        <deleteConstraint>SetNull</deleteConstraint>
+        <externalId>false</externalId>
+        <label>Project Name</label>
+        <referenceTo>Project__c</referenceTo>
+        <relationshipLabel>Project Timesheets</relationshipLabel>
+        <relationshipName>Project_Timesheets</relationshipName>
+        <required>false</required>
+        <trackTrending>false</trackTrending>
+        <type>Lookup</type>
+    </fields>
+    <fields>
+        <fullName>Project_Name_Text__c</fullName>
+        <externalId>false</externalId>
+        <formula>P_Opportunity_Name__r.Name</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <label>Project Name (Text)</label>
+        <required>false</required>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Project_Name__c</fullName>
+        <externalId>false</externalId>
+        <label>Opportunity Name</label>
+        <lookupFilter>
+            <active>true</active>
+            <errorMessage>You must pick a project related to the customer</errorMessage>
+            <filterItems>
+                <field>Opportunity.AccountId</field>
+                <operation>equals</operation>
+                <valueField>$Source.Customer__c</valueField>
+            </filterItems>
+            <isOptional>false</isOptional>
+        </lookupFilter>
+        <referenceTo>Opportunity</referenceTo>
+        <relationshipLabel>Project Timesheets</relationshipLabel>
+        <relationshipName>Project_Timesheets</relationshipName>
+        <relationshipOrder>0</relationshipOrder>
+        <reparentableMasterDetail>true</reparentableMasterDetail>
+        <trackTrending>false</trackTrending>
+        <type>MasterDetail</type>
+        <writeRequiresMasterRead>false</writeRequiresMasterRead>
+    </fields>
+    <fields>
+        <fullName>Project_Stage__c</fullName>
+        <externalId>false</externalId>
+        <label>Project Stage</label>
+        <picklist>
+            <picklistValues>
+                <fullName>Kick-Off</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Analysis &amp; Design</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Build</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Testing</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Training</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Deployment</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Support</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Project Mangement</fullName>
+                <default>false</default>
+            </picklistValues>
+            <sorted>false</sorted>
+        </picklist>
+        <trackTrending>false</trackTrending>
+        <type>Picklist</type>
+    </fields>
+    <fields>
+        <fullName>Status__c</fullName>
+        <externalId>false</externalId>
+        <inlineHelpText>Scheduled implies work has not started yet.</inlineHelpText>
+        <label>Status</label>
+        <picklist>
+            <picklistValues>
+                <fullName>Complete</fullName>
+                <default>true</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Scheduled</fullName>
+                <default>false</default>
+            </picklistValues>
+            <sorted>false</sorted>
+        </picklist>
+        <trackTrending>false</trackTrending>
+        <type>Picklist</type>
+    </fields>
+    <fields>
+        <fullName>Timebank_time__c</fullName>
+        <defaultValue>false</defaultValue>
+        <externalId>false</externalId>
+        <label>Timebank time?</label>
+        <trackTrending>false</trackTrending>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>Week_No__c</fullName>
+        <description>Calculates the week number to help identify who hasn&apos;t entered a timesheet</description>
+        <externalId>false</externalId>
+        <formula>Case(
+MOD( DATE(YEAR(Date_of_Work__c), 1, 1) - DATE (1900, 1, 7), 7),
+0, ( Date_of_Work__c- DATE(YEAR(Date_of_Work__c),1,1) + 3) /7, 
+1, ( Date_of_Work__c- DATE(YEAR(Date_of_Work__c),1,1) + 4) /7, 
+2, ( Date_of_Work__c- DATE(YEAR(Date_of_Work__c),1,1) + 5) /7, 
+3, ( Date_of_Work__c- DATE(YEAR(Date_of_Work__c),1,1) + 6) /7, 
+4, ( Date_of_Work__c- DATE(YEAR(Date_of_Work__c),1,1) + 7) /7, 
+5, ( Date_of_Work__c- DATE(YEAR(Date_of_Work__c),1,1) + 1) /7, 
+6, ( Date_of_Work__c- DATE(YEAR(Date_of_Work__c),1,1) + 2) /7, 
+99)</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <label>Week No.</label>
+        <precision>18</precision>
+        <required>false</required>
+        <scale>0</scale>
+        <trackTrending>false</trackTrending>
+        <type>Number</type>
+        <unique>false</unique>
+    </fields>
+    <label>Project Timesheet</label>
+    <listViews>
+        <fullName>My_Timesheets</fullName>
+        <columns>NAME</columns>
+        <columns>Date_of_Work__c</columns>
+        <columns>Project_Name__c</columns>
+        <columns>Consultant_Name__c</columns>
+        <columns>Customer_Name__c</columns>
+        <columns>P_Opportunity_Name__c</columns>
+        <filterScope>Mine</filterScope>
+        <label>My Timesheets</label>
+    </listViews>
+    <listViews>
+        <fullName>Project_Hours</fullName>
+        <columns>Consultant_Name__c</columns>
+        <columns>NAME</columns>
+        <columns>Customer__c</columns>
+        <columns>Project_Name__c</columns>
+        <columns>Date_of_Work__c</columns>
+        <columns>Duration__c</columns>
+        <filterScope>Everything</filterScope>
+        <label>Project Hours</label>
+    </listViews>
+    <listViews>
+        <fullName>This_Month_s_timesheets</fullName>
+        <columns>NAME</columns>
+        <columns>Consultant_Name__c</columns>
+        <columns>Date_of_Work__c</columns>
+        <columns>Project_Name__c</columns>
+        <columns>Timebank_time__c</columns>
+        <filterScope>Everything</filterScope>
+        <filters>
+            <field>CREATED_DATE</field>
+            <operation>equals</operation>
+            <value>THIS_MONTH</value>
+        </filters>
+        <label>This Month&apos;s timesheets</label>
+    </listViews>
+    <listViews>
+        <fullName>Today_s_Timesheets</fullName>
+        <columns>NAME</columns>
+        <columns>Consultant_Name__c</columns>
+        <columns>P_Opportunity_Name__c</columns>
+        <columns>Project_Name__c</columns>
+        <columns>Duration__c</columns>
+        <filterScope>Everything</filterScope>
+        <filters>
+            <field>CREATED_DATE</field>
+            <operation>equals</operation>
+            <value>TODAY</value>
+        </filters>
+        <label>Today&apos;s Timesheets</label>
+    </listViews>
+    <nameField>
+        <displayFormat>{DD}{MM}{YYYY}-{0}</displayFormat>
+        <label>Project Timesheet Name</label>
+        <type>AutoNumber</type>
+    </nameField>
+    <pluralLabel>Project Timesheets</pluralLabel>
+    <searchLayouts>
+        <customTabListAdditionalFields>P_Opportunity_Name__c</customTabListAdditionalFields>
+        <customTabListAdditionalFields>Project_Name__c</customTabListAdditionalFields>
+        <customTabListAdditionalFields>Consultant_Name__c</customTabListAdditionalFields>
+        <customTabListAdditionalFields>Duration__c</customTabListAdditionalFields>
+        <customTabListAdditionalFields>For_Review__c</customTabListAdditionalFields>
+        <lookupDialogsAdditionalFields>Project_Name__c</lookupDialogsAdditionalFields>
+        <lookupDialogsAdditionalFields>P_Opportunity_Name__c</lookupDialogsAdditionalFields>
+        <lookupDialogsAdditionalFields>Consultant_Name__c</lookupDialogsAdditionalFields>
+        <searchResultsAdditionalFields>P_Opportunity_Name__c</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields>Consultant_Name__c</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields>Date_of_Work__c</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields>Project_Name__c</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields>Duration__c</searchResultsAdditionalFields>
+    </searchLayouts>
+    <sharingModel>ControlledByParent</sharingModel>
+    <validationRules>
+        <fullName>Description_manditory</fullName>
+        <active>true</active>
+        <errorConditionFormula>ISPICKVAL( Description__c , &quot;&quot;)</errorConditionFormula>
+        <errorDisplayField>Description__c</errorDisplayField>
+        <errorMessage>You must enter a description</errorMessage>
+    </validationRules>
+</CustomObject>

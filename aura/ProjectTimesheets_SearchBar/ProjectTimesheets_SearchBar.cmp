@@ -1,0 +1,15 @@
+<aura:component >   
+
+    <aura:attribute name="searchKey" type="String"/>
+    
+    <form class="slds-form--inline">
+        <div class="slds-form-element">
+            <div class="slds-form-element__control">
+                <ui:inputText class="slds-input searchKey" value="{!v.searchKey}" placeholder="Search..."/>
+            </div>
+        </div>
+        <button class="slds-button slds-button--neutral" type="button" onclick="{!c.searchKeyChange}">Search</button>
+        <button class="slds-button slds-button--neutral" type="button" onclick="{!c.clearText}">Reset</button>
+    </form>
+    
+</aura:component>

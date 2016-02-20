@@ -1,0 +1,71 @@
+<aura:component >
+
+    <aura:handler event="c:ProjectTimesheetPaginatorRefreshEvent" action="{!c.refreshPaginator}"/>
+
+    <aura:attribute name="page" type="integer"/>
+    <aura:attribute name="pages" type="integer"/>
+    <aura:attribute name="total" type="integer"/>
+    
+    <div class="slds-grid slds-grid--align-center">
+        <div class="slds-col slds-col--padded-medium slds-align-middle">
+            
+            <aura:renderIf isTrue="{!v.page > 1}">
+                <c:button type="brand" 
+                          label="Previous"
+                          press="{!c.previousPage}"/>            
+<!--
+                <c:button type="brand" 
+                          label="Previous"
+						  iconCategory="utility" 
+                          iconName="chevronleft" 
+                          iconPosition="left"
+                          press="{!c.previousPage}"/>            
+-->
+                <aura:set attribute="else">
+                    <c:button type="brand Disabled" disabled="true" 
+                              label="Previous"
+                              press="{!c.previousPage}"/>                
+<!--
+                    <c:button type="brand Disabled" disabled="true" 
+                              label="Previous"
+                              iconCategory="utility" 
+                              iconName="chevronleft" 
+                              iconPosition="left"
+                              press="{!c.previousPage}"/>                
+-->
+                </aura:set>
+            </aura:renderIf>       
+        </div>
+        <div class="slds-col slds-col--padded-medium slds-align-middle">
+            {!v.total} timesheets • page {!v.page} / {!v.pages}
+        </div>
+        <div class="slds-col slds-col--padded-medium slds-align-middle">
+            <aura:renderIf isTrue="{!v.page &lt; v.pages}">
+                <c:button type="brand" 
+                          label="Next"
+                          press="{!c.nextPage}"/>
+<!--
+                <c:button type="brand" 
+                          label="Next"
+						  iconCategory="utility" 
+                          iconName="chevronright" 
+                          iconPosition="right"
+                          press="{!c.nextPage}"/>
+-->
+                <aura:set attribute="else">
+<!--
+                    <c:button type="brand Disabled" disabled="true" 
+                              label="Next"
+                              iconCategory="utility" 
+                              iconName="chevronright" 
+                              iconPosition="right"
+                              press="{!c.nextPage}"/>                
+-->
+                    <c:button type="brand Disabled" disabled="true" 
+                              label="Next"
+                              press="{!c.nextPage}"/>                
+                </aura:set>
+            </aura:renderIf>        
+        </div>
+    </div>
+</aura:component>

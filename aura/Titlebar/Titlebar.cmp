@@ -1,0 +1,23 @@
+<aura:component >
+    <aura:attribute name="resourceUrl" type="String" access="GLOBAL" default="/resource/slds" description="The URL for the SDS resource bundle."/>
+    <aura:attribute name="title" required="true" type="String" access="GLOBAL" description="The title to appear centered in the bar"/>
+    
+    <aura:attribute name="iconCategoryRight" type="String" access="GLOBAL" description="Icon category for right button"/>
+    <aura:attribute name="iconNameRight" type="String" access="GLOBAL" description="Icon name of right button"/> 
+    <aura:attribute name="iconPressRight" type="Aura.Action" access="GLOBAL" description="Right button click handler" default="{!c.emptyFn}"/>
+    
+	<aura:registerEvent name="MyTimesheetsCmpRouter" type="c:MyTimesheetsCmpRouter"/>
+
+        <div class="slds-grid slds-grid--align-spread titlebar" 
+             style="height: 3em; padding: 2px; border-bottom: 1px solid silver; background-color: #16325c">
+        <div class="slds-col slds-align-center title" style="color:white;">
+            Project Timesheets
+		</div>
+        <div aura:id="rightcol" class="slds-col">
+            <c:button type="inverse" 
+                      label="Add Timesheet" 
+                      press="{!c.createRecord}"/>
+        </div>
+    </div>
+    
+</aura:component>

@@ -1,0 +1,22 @@
+<aura:component controller="ProjectTimesheetFormController" implements="force:appHostable" >
+
+    <aura:dependency resource="markup://c:ProjectTimesheetForm" />
+    
+    <aura:attribute name="currentView" 
+                    type="String"  
+                    access="PRIVATE"
+                    default="myTimesheets"
+                    description="The currently active view" />
+
+    <aura:handler event="c:MyTimesheetsCmpRouter" action="{!c.handleMyTimesheetsCmpRouter}"/>
+    
+	<div class="routeContainer" aura:id="routeContainer">      
+        <div aura:id="myTimesheets" class="route">
+         	<c:MyTimesheets aura:id="MyTimesheetsListCmp"  />
+	    </div>
+
+     	<div aura:id="recordRoute" class="route route--off">
+     	</div>
+	</div>
+
+</aura:component>
